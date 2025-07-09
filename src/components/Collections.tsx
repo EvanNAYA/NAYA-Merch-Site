@@ -1,49 +1,55 @@
+import CollectionCard from './CollectionCard';
+
+const collections = [
+  {
+    name: 'Light',
+    subtitle: '(Hats, Socks, Accessories)',
+    image: '/CollectionsPlaceholder.jpg',
+  },
+  {
+    name: 'Medium',
+    subtitle: '(Tees)',
+    image: '/CollectionsPlaceholder.jpg',
+  },
+  {
+    name: 'Heavy',
+    subtitle: '(Sweatshirts, Sweatpants)',
+    image: '/CollectionsPlaceholder.jpg',
+  },
+];
+
+const HEADER_HEIGHT_PX = 64;
 
 const Collections = () => {
-  const collections = [
-    {
-      name: "Light",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      name: "Medium",
-      image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
-    },
-    {
-      name: "Heavy",
-      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?auto=format&fit=crop&w=800&q=80",
-    }
-  ];
-
   return (
-    <section className="py-16 bg-sweetgreen-light">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-light text-gray-900 mb-4">Shop by Collection</h2>
-          <p className="text-gray-600">Find the perfect piece for every season</p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {collections.map((collection, index) => (
-            <div key={index} className="group cursor-pointer">
-              <div className="relative aspect-square bg-gray-100 mb-4 overflow-hidden">
-                <img
-                  src={collection.image}
-                  alt={collection.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <h3 className="text-white text-2xl font-light uppercase tracking-wider">
-                    {collection.name}
-                  </h3>
+    <div className="overflow-x-hidden w-full">
+      <section
+        className="py-0 bg-naya-hm flex flex-col justify-between overflow-x-hidden w-full"
+        style={{ minHeight: `calc(100vh - ${HEADER_HEIGHT_PX}px)` }}
+      >
+        <div className="w-full flex flex-col h-full mx-auto overflow-x-hidden">
+          <div className="text-left mb-8 px-4 pt-16">
+            <h2 className="text-4xl font-asc-m text-naya-dg mb-4">NAYA's Collections</h2>
+          </div>
+          <div className="flex-1 flex items-center justify-center w-full">
+            <div className="flex gap-6 md:gap-8 w-full justify-center overflow-x-hidden">
+              {collections.map((collection, index) => (
+                <div
+                  className="min-w-[180px] max-w-[320px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[60vh]"
+                  key={index}
+                >
+                  <CollectionCard
+                    name={collection.name}
+                    subtitle={collection.subtitle}
+                    image={collection.image}
+                  />
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 };
 

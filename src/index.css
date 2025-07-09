@@ -1,3 +1,63 @@
+@font-face {
+  font-family: 'asc_b';
+  src: url('/fonts/AttilaSansClassic-Bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'asc_m';
+  src: url('/fonts/AttilaSansClassic-Medium.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'asc_r';
+  src: url('/fonts/AttilaSansClassic-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'pg_b';
+  src: url('/fonts/PlakatGrotesk_bold.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'pg_r';
+  src: url('/fonts/PlakatGrotesk.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'dm';
+  src: url('/fonts/DesMontilles-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.font-asc-b {
+  font-family: 'asc_b', sans-serif;
+}
+.font-asc-m {
+  font-family: 'asc_m', sans-serif;
+}
+.font-asc-c {
+  font-family: 'asc_r', sans-serif;
+}
+.font-pg-b {
+  font-family: 'pg_b', sans-serif;
+}
+.font-pg-r {
+  font-family: 'pg_r', sans-serif;
+}
+.font-dm {
+  font-family: 'dm', sans-serif;
+}
 
 @tailwind base;
 @tailwind components;
@@ -16,30 +76,35 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 15%;
 
-    --primary: 142 76% 36%;
+    --primary: 168 58% 32%;
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 142 20% 95%;
-    --secondary-foreground: 142 76% 36%;
+    --secondary: 168 58% 25%;
+    --secondary-foreground: 168 58% 32%;
 
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 142 20% 95%;
-    --accent-foreground: 142 76% 36%;
+    --accent: 168 58% 25%;
+    --accent-foreground: 168 58% 32%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 142 76% 36%;
+    --ring: 168 58% 32%;
 
     --radius: 0.5rem;
 
-    --sweetgreen-green: 142 76% 36%;
-    --sweetgreen-light-green: 142 20% 95%;
-    --sweetgreen-dark-green: 142 76% 25%;
+    --naya-lg: 168 58% 32%;
+    --naya-dg: 168 58% 25%;
+    --naya-hm: 39 67% 95%;
+    --naya-brt: 189 64% 70%;
+    --naya-oo: 48 100% 60%;
+    --naya-tm: 25 91% 56%;
+    --naya-cb: 89 58% 80%;
+    --naya-ep: 330 20% 20%;
   }
 
   * {
@@ -53,16 +118,68 @@
 }
 
 @layer utilities {
-  .text-sweetgreen {
-    color: hsl(var(--sweetgreen-green));
+  .text-naya-lg {
+    color: hsl(var(--naya-lg));
   }
   
-  .bg-sweetgreen {
-    background-color: hsl(var(--sweetgreen-green));
+  .bg-naya-lg {
+    background-color: hsl(var(--naya-lg));
   }
   
-  .bg-sweetgreen-light {
-    background-color: hsl(var(--sweetgreen-light-green));
+  .text-naya-dg {
+    color: hsl(var(--naya-dg));
+  }
+  
+  .bg-naya-dg {
+    background-color: hsl(var(--naya-dg));
+  }
+  
+  .text-naya-hm {
+    color: hsl(var(--naya-hm));
+  }
+  
+  .bg-naya-hm {
+    background-color: hsl(var(--naya-hm));
+  }
+  
+  .text-naya-brt {
+    color: hsl(var(--naya-brt));
+  }
+  
+  .bg-naya-brt {
+    background-color: hsl(var(--naya-brt));
+  }
+  
+  .text-naya-oo {
+    color: hsl(var(--naya-oo));
+  }
+  
+  .bg-naya-oo {
+    background-color: hsl(var(--naya-oo));
+  }
+  
+  .text-naya-tm {
+    color: hsl(var(--naya-tm));
+  }
+  
+  .bg-naya-tm {
+    background-color: hsl(var(--naya-tm));
+  }
+  
+  .text-naya-cb {
+    color: hsl(var(--naya-cb));
+  }
+  
+  .bg-naya-cb {
+    background-color: hsl(var(--naya-cb));
+  }
+  
+  .text-naya-ep {
+    color: hsl(var(--naya-ep));
+  }
+  
+  .bg-naya-ep {
+    background-color: hsl(var(--naya-ep));
   }
   
   .hover-scale {

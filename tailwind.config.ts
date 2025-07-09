@@ -89,8 +89,19 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+			},
+			fontFamily: {
+				'asc-b': ['asc_b', 'sans-serif'],
+				'asc-m': ['asc_m', 'sans-serif'],
+				'asc-r': ['asc_r', 'sans-serif'],
+				'pg-b': ['pg_b', 'sans-serif'],
+				'pg-r': ['pg_r', 'sans-serif'],
+				'dm': ['dm', 'sans-serif'],
+			},
 		}
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		// @ts-expect-error: require is available at runtime for tailwind config
+		require("tailwindcss-animate")
+	],
 } satisfies Config;
