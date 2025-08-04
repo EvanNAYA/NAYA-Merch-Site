@@ -141,7 +141,7 @@ const Collections = () => {
             <div className="flex gap-4 md:gap-8 w-full justify-start overflow-x-auto overflow-y-visible px-4 scrollbar-hide md:justify-center md:overflow-x-visible md:px-0" style={{ scrollBehavior: 'smooth', touchAction: 'pan-x pan-y' }}>
               {collections.map((collection, index) => (
                 <div
-                  className="min-w-[140px] max-w-[240px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[45vh] md:h-[60vh] border-2 border-naya-lg p-0 rounded-[15px] overflow-hidden transition-transform duration-300 hover:scale-105 hover:z-50 relative"
+                  className="min-w-[140px] max-w-[240px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[45vh] md:h-[60vh] border-2 border-naya-lg p-0 rounded-[15px] overflow-hidden transition-transform duration-300 hover:scale-105 hover:z-20 relative"
                   key={collection.handle}
                 >
                   <CollectionCard
