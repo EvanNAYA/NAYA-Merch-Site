@@ -5,6 +5,7 @@ import ProductCard from '@/components/ProductCard';
 import { fetchShopifyStorefront } from '@/lib/shopify';
 import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
+import CartSidebar from '@/components/CartSidebar';
 
 const COLLECTION_QUERY = `
   query GetCollectionByHandle($handle: String!) {
@@ -47,6 +48,7 @@ const Collection = () => {
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const [collection, setCollection] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false);
 
   useEffect(() => {
     async function fetchCollection() {
@@ -102,6 +104,17 @@ const Collection = () => {
 
   return (
     <div className="min-h-screen bg-naya-hm">
+      {/* Dimming Overlay */}
+      {isCartSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsCartSidebarOpen(false)}
+        />
+      )}
+      
+      {/* Cart Sidebar */}
+      <CartSidebar isOpen={isCartSidebarOpen} onClose={() => setIsCartSidebarOpen(false)} />
+      
       {/* Header */}
       <div className="bg-naya-hm px-4 sticky top-0 z-30 shadow-lg" style={{ height: 64 }}>
         <div className="max-w-7xl mx-auto flex items-center h-full" />
@@ -140,7 +153,7 @@ const Collection = () => {
         <div className="absolute top-0 right-0 h-full flex items-center pr-8">
           <button
             className="font-asc-r text-xl text-gray-700 hover:text-naya-lg transition-colors h-full flex items-center"
-            onClick={() => navigate('/cart')}
+            onClick={() => setIsCartSidebarOpen(true)}
             aria-label="Open cart"
           >
             CART ({cartCount})

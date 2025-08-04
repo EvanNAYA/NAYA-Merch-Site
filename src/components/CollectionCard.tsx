@@ -19,7 +19,7 @@ const CollectionCard = ({ name, subtitle, image, handle, shopifyId }: Collection
 
   return (
     <div 
-      className="relative w-full h-full aspect-square border-2 border-naya-dg rounded-[15px] overflow-hidden flex items-center justify-center group bg-gray-100 cursor-pointer transition-transform duration-300 hover:scale-105"
+      className="relative w-full h-full aspect-square rounded-[15px] overflow-hidden flex items-center justify-center group bg-gray-100 cursor-pointer"
       onClick={handleClick}
     >
       <img
