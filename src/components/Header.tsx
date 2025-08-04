@@ -57,9 +57,9 @@ const Header = () => {
   };
 
   // Determine color states
-  const shopColor = isShopDrawerOpen ? 'text-naya-lg' : isInfoDrawerOpen ? 'text-naya-hm' : 'text-gray-700 hover:text-naya-lg';
-  const infoColor = isInfoDrawerOpen ? 'text-naya-lg' : isShopDrawerOpen ? 'text-naya-hm' : 'text-gray-700 hover:text-naya-lg';
-  const cartColor = isCartSidebarOpen ? 'text-naya-lg' : 'text-gray-700 hover:text-naya-lg';
+  const shopColor = (isShopDrawerOpen || isInfoDrawerOpen) ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
+  const infoColor = (isShopDrawerOpen || isInfoDrawerOpen) ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
+  const cartColor = isCartSidebarOpen ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -71,18 +71,19 @@ const Header = () => {
           onClick={closeDrawers}
         />
       )}
+      
       {/* SHOP Side Drawer */}
       <div
-        className={`fixed top-0 left-0 z-50 h-full bg-naya-hm shadow-lg transition-transform duration-300 flex flex-col
+        className={`fixed top-0 left-0 z-50 h-full bg-naya-hm shadow-lg transition-transform duration-300 flex flex-col overflow-hidden
           ${isShopDrawerOpen ? 'translate-x-0' : '-translate-x-full'}
           w-[33vw] max-w-[400px] min-w-[260px] md:w-[33vw] md:max-w-[500px] md:min-w-[320px]
-          sm:w-[95vw] sm:max-w-[95vw] sm:min-w-[0]`}
-        style={{ width: isShopDrawerOpen ? (window.innerWidth < 640 ? '95vw' : '33vw') : undefined }}
+          sm:w-[90vw] sm:max-w-[90vw] sm:min-w-[0]`}
+        style={{ width: isShopDrawerOpen ? (window.innerWidth < 640 ? '90vw' : '33vw') : undefined }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Full-width black top bar with X at right */}
+        {/* Full-width black top bar with X only */}
         <div
-          className="w-full flex items-center justify-end bg-black"
+          className="w-full flex items-center justify-end bg-naya-dg"
           style={{ height: HEADER_HEIGHT_PX }}
         >
           <button
@@ -112,18 +113,19 @@ const Header = () => {
           ))}
         </nav>
       </div>
+      
       {/* INFO Side Drawer */}
       <div
         className={`fixed top-0 left-0 z-50 h-full bg-naya-hm shadow-lg transition-transform duration-300 flex flex-col
           ${isInfoDrawerOpen ? 'translate-x-0' : '-translate-x-full'}
           w-[33vw] max-w-[400px] min-w-[260px] md:w-[33vw] md:max-w-[500px] md:min-w-[320px]
-          sm:w-[95vw] sm:max-w-[95vw] sm:min-w-[0]`}
-        style={{ width: isInfoDrawerOpen ? (window.innerWidth < 640 ? '95vw' : '33vw') : undefined }}
+          sm:w-[90vw] sm:max-w-[90vw] sm:min-w-[0]`}
+        style={{ width: isInfoDrawerOpen ? (window.innerWidth < 640 ? '90vw' : '33vw') : undefined }}
         onClick={e => e.stopPropagation()}
       >
-        {/* Full-width black top bar with X at right */}
+        {/* Full-width black top bar with X only */}
         <div
-          className="w-full flex items-center justify-end bg-black"
+          className="w-full flex items-center justify-end bg-naya-dg"
           style={{ height: HEADER_HEIGHT_PX }}
         >
           <button
@@ -153,47 +155,40 @@ const Header = () => {
           ))}
         </nav>
       </div>
+      
       {/* CART Sidebar */}
       <CartSidebar isOpen={isCartSidebarOpen} onClose={closeDrawers} />
-      {/* Absolutely positioned nav above everything, always at top left */}
-      <div className="fixed top-0 left-0 z-[60] flex items-center h-16 gap-8 px-8 select-none" style={{ height: HEADER_HEIGHT_PX }}>
-        <span
-          className={`font-asc-r text-xl transition-colors ${shopColor} cursor-pointer select-auto`}
-          onClick={openShopDrawer}
-          style={{ pointerEvents: 'auto' }}
-        >
-          SHOP
-        </span>
-        <span
-          className={`font-asc-r text-xl transition-colors ${infoColor} cursor-pointer select-auto`}
-          onClick={openInfoDrawer}
-          style={{ pointerEvents: 'auto' }}
-        >
-          INFO
-        </span>
+      
+      {/* SHOP and INFO buttons - positioned absolutely above everything */}
+      <div className="fixed top-0 left-0 z-[80] flex items-center h-16 px-3 md:px-8 pointer-events-none">
+        <nav className="flex items-center h-full gap-4 md:gap-8 pointer-events-auto">
+          <button
+            className={`h-full flex items-center text-lg ${isShopDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${shopColor}`}
+            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+            onClick={openShopDrawer}
+          >
+            SHOP
+          </button>
+          <button
+            className={`h-full flex items-center text-lg ${isInfoDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${infoColor}`}
+            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+            onClick={openInfoDrawer}
+          >
+            INFO
+          </button>
+        </nav>
       </div>
+      
       {/* Header */}
-      <header className="w-full bg-naya-hm border-b border-gray-200 sticky top-0 z-30">
-        <div className="relative flex items-center justify-between h-16">
-          {/* Left Navigation (hidden visually, but for accessibility) */}
-          <nav className="flex items-center h-full invisible">
-            <button
-              className={`h-full flex items-center px-8 text-xl font-asc-r transition-colors ${shopColor}`}
-              style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer' }}
-              onClick={openShopDrawer}
-            >
-              SHOP
-            </button>
-            <a
-              href="#"
-              className={`h-full flex items-center px-0 text-xl font-asc-r transition-colors ${infoColor}`}
-              style={{ display: 'flex' }}
-            >
-              INFO
-            </a>
+      <header className="w-full bg-naya-hm border-b border-gray-200 fixed top-0 z-30 shadow-lg">
+        <div className="relative flex items-center justify-between h-16 px-3 md:px-8">
+          {/* Left Navigation - invisible spacer */}
+          <nav className="flex items-center h-full gap-4 md:gap-8 invisible">
+            <div className="h-full flex items-center text-lg">SHOP</div>
+            <div className="h-full flex items-center text-lg">INFO</div>
           </nav>
 
-          {/* Logo Centered Absolutely */}
+          {/* Logo Centered */}
           <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <a
               href="https://eatnaya.com"
@@ -202,31 +197,22 @@ const Header = () => {
               onMouseLeave={() => setIsLogoHovered(false)}
             >
               <img
-                src={isLogoHovered ? "/NAYAGreen.png" : "/NAYABlack.png"}
+                src={isLogoHovered ? "/NAYALightGreen.png" : "/NAYADarkGreen.png"}
                 alt="NAYA Logo"
-                className={`cursor-pointer ${isLogoHovered ? 'h-[59px]' : 'h-16'}`}
+                className={`cursor-pointer ${isLogoHovered ? 'h-11' : 'h-11'}`}
               />
             </a>
           </div>
 
-          {/* Right side icons */}
+          {/* Right side cart */}
           <div className="flex items-center h-full">
             <Button
               variant="ghost"
               size="sm"
-              className={`h-full px-8 font-asc-r text-xl hover:bg-transparent transition-colors ${cartColor}`}
+              className={`h-full px-2 md:px-0 font-asc-r text-lg hover:bg-transparent transition-colors ${cartColor}`}
               onClick={openCartSidebar}
             >
               CART ({cartCount})
-            </Button>
-            {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="md:hidden"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
         </div>

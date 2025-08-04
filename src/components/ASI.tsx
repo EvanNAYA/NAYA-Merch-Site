@@ -7,16 +7,17 @@ const LOGOS = [
   { src: '/As Seen In/QSRLogo.png', alt: 'QSR' },
   { src: '/As Seen In/NYPLogo.png', alt: 'New York Post' },
   { src: '/As Seen In/NRNLogo.png', alt: 'NRN' },
+  { src: '/As Seen In/CrainsLogo.png', alt: 'Crains' },
 ];
 
-const LOGO_HEIGHT_DESKTOP = '160px';
-const LOGO_HEIGHT_MOBILE = '80px';
+const LOGO_HEIGHT_DESKTOP = '176px';
+const LOGO_HEIGHT_MOBILE = '140px';
 const CAROUSEL_HEIGHT_DESKTOP = '32vh';
 const CAROUSEL_HEIGHT_MOBILE = '18vh';
-const BORDER_WIDTH = '1px'; // reduced from 3px
-const LOGO_GAP = '1rem';
+const BORDER_WIDTH = '1px';
+const LOGO_GAP = '2.5rem';
 const PADDING_Y = '2px';
-const ANIMATION_DURATION = 12; // seconds for a full loop (was 9)
+const ANIMATION_DURATION = 12;
 
 const ASI: React.FC = () => {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -24,138 +25,205 @@ const ASI: React.FC = () => {
   const [setWidth, setSetWidth] = useState(0);
   const [repeatCount, setRepeatCount] = useState(2);
 
-  // Measure the width of one set of logos after render
   useEffect(() => {
-    const handleResize = () => {
+    let rafId: number;
+    const measureAndSet = () => {
       if (setRef.current && trackRef.current) {
         const setW = setRef.current.offsetWidth;
-        const trackW = trackRef.current.offsetParent?.clientWidth || 0;
-        // Repeat enough times to fill at least 2x the visible width
-        const minRepeats = Math.ceil((trackW * 2) / setW);
+        const container = trackRef.current.closest('.asi-carousel-container') as HTMLElement | null;
+        const carouselW = container ? container.offsetWidth : window.innerWidth * 0.8;
+        const minRepeats = Math.ceil((carouselW * 2) / setW) + 1;
         setSetWidth(setW);
-        setRepeatCount(Math.max(2, minRepeats));
+        // Force minimum repeat count on mobile to ensure all logos are visible
+        const isMobile = window.innerWidth < 768;
+        setRepeatCount(Math.max(isMobile ? 3 : 2, minRepeats));
+      } else {
+        rafId = window.requestAnimationFrame(measureAndSet);
       }
     };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    rafId = window.requestAnimationFrame(measureAndSet);
+    window.addEventListener('resize', measureAndSet);
+    return () => {
+      window.removeEventListener('resize', measureAndSet);
+      if (rafId) window.cancelAnimationFrame(rafId);
+    };
   }, []);
 
-  // Set up keyframes for seamless scroll
   useEffect(() => {
     if (!setWidth) return;
-    const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${setWidth}px); } }`;
-    const styleSheet = document.createElement('style');
+    // Convert 8rem to pixels (assuming 16px = 1rem)
+    const marginInPixels = 8 * 16; // 8rem = 128px
+    const totalDistance = setWidth + marginInPixels;
+    const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${totalDistance}px); } }`;
+    let styleSheet = document.getElementById('asi-scroll-keyframes');
+    if (!styleSheet) {
+      styleSheet = document.createElement('style');
+      styleSheet.id = 'asi-scroll-keyframes';
+      document.head.appendChild(styleSheet);
+    }
     styleSheet.innerText = keyframes;
-    document.head.appendChild(styleSheet);
     return () => {
-      document.head.removeChild(styleSheet);
+      if (styleSheet && styleSheet.parentNode) {
+        styleSheet.parentNode.removeChild(styleSheet);
+      }
     };
   }, [setWidth]);
 
-  // Build the repeated logo sets
-  const repeatedLogos = Array.from({ length: repeatCount }, () => LOGOS).flat();
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  
+  const repeatedLogos = isMobile ? LOGOS : Array.from({ length: repeatCount }, () => LOGOS).flat();
+
+    // Simple multiplier system for individual logo sizing on mobile
+  const getMobileLogoMultiplier = (logoSrc: string) => {
+    if (logoSrc.includes('ForbesLogo.png')) return 1.0;
+    if (logoSrc.includes('EaterLogo.png')) return 1.0;
+    if (logoSrc.includes('NYTLogo.png')) return 1.0;
+    if (logoSrc.includes('QSRLogo.png')) return 1.0;
+    if (logoSrc.includes('NYPLogo.png')) return 1.0;
+    if (logoSrc.includes('NRNLogo.png')) return 1.0;
+    if (logoSrc.includes('CrainsLogo.png')) return 1.0;
+    return 1.0; // Default
+  };
+
+  if (isMobile) {
+    return (
+      <section
+        className="w-full flex flex-col bg-naya-hm pb-32"
+        style={{ minHeight: CAROUSEL_HEIGHT_MOBILE, height: CAROUSEL_HEIGHT_MOBILE, backgroundColor: 'hsl(var(--naya-hm))' }}
+        data-asi
+      >
+        <div className="px-4 pb-2 mb-8 pt-4">
+          <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">As Seen In</h2>
+        </div>
+        <div
+          className="w-full flex items-center"
+          style={{
+            flex: 1,
+            minHeight: `18vh`,
+            height: '18vh',
+          }}
+        >
+          <div
+            className="simple-mobile-carousel relative mx-auto overflow-hidden"
+            style={{
+              width: '80vw',
+              height: '100%',
+              borderLeft: `${BORDER_WIDTH} solid #000`,
+              borderRight: `${BORDER_WIDTH} solid #000`,
+              borderTop: `${BORDER_WIDTH} solid #000`,
+              borderBottom: `${BORDER_WIDTH} solid #000`,
+              backgroundColor: 'hsl(var(--naya-hm))',
+              borderRadius: '15px',
+            }}
+          >
+            <div
+              className="simple-mobile-track"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                height: '100%',
+                animation: 'simple-mobile-scroll 15s linear infinite',
+              }}
+            >
+              {/* Double the logos for seamless loop */}
+              {[...LOGOS, ...LOGOS].map((logo, idx) => (
+                <div
+                  key={`simple-logo-${idx}`}
+                  className="flex-shrink-0 flex items-center justify-center"
+                  style={{
+                    width: '20vw',
+                    height: '80%',
+                    marginRight: '1rem',
+                  }}
+                >
+                  <img
+                    src={logo.src}
+                    alt={logo.alt}
+                    style={{
+                      maxWidth: '100%',
+                      maxHeight: '100%',
+                      objectFit: 'contain',
+                      transform: `scale(${getMobileLogoMultiplier(logo.src)})`,
+                    }}
+                    draggable={false}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="h-7"></div>
+        <style>{`
+          @keyframes simple-mobile-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .simple-mobile-track {
+            width: calc(14 * (20vw + 1rem)); /* 14 logos × (20vw width + 1rem gap) */
+          }
+        `}</style>
+      </section>
+    );
+  }
 
   return (
     <section
-      className="w-full flex flex-col bg-naya-hm"
+      className="w-full flex flex-col bg-naya-hm pb-32"
       style={{ minHeight: CAROUSEL_HEIGHT_DESKTOP, height: CAROUSEL_HEIGHT_DESKTOP, backgroundColor: 'hsl(var(--naya-hm))' }}
       data-asi
     >
-      {/* Heading */}
-      <div className="px-4 pt-12 pb-2 mb-8">
-        <h2 className="text-4xl font-asc-m text-naya-lg mb-4 text-left">As Seen In</h2>
+      <div className="px-4 pb-2 mb-8 pt-4">
+        <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">As Seen In</h2>
       </div>
-      {/* Top Border */}
-      {/* Carousel */}
       <div
-        className="relative w-full overflow-hidden flex items-center bg-naya-hm"
+        className="w-full flex items-center"
         style={{
           flex: 1,
           minHeight: `18vh`,
           height: '18vh',
-          backgroundColor: 'hsl(var(--naya-hm))',
         }}
-        ref={trackRef}
       >
-        {/* Absolute Borders */}
         <div
+          className="asi-carousel-container relative mx-auto overflow-hidden flex items-center"
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
+            width: '80vw',
+            height: '100%',
+            borderLeft: `${BORDER_WIDTH} solid #000`,
+            borderRight: `${BORDER_WIDTH} solid #000`,
             borderTop: `${BORDER_WIDTH} solid #000`,
-            zIndex: 2,
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
             borderBottom: `${BORDER_WIDTH} solid #000`,
-            zIndex: 2,
-          }}
-        />
-        <div
-          className="flex items-center asi-track"
-          style={{
-            width: 'max-content',
-            animation: setWidth ? `asi-scroll ${ANIMATION_DURATION}s linear infinite` : undefined,
+            backgroundColor: 'hsl(var(--naya-hm))',
+            justifyContent: 'center',
+            borderRadius: '15px',
           }}
         >
-          {/* The first set is used for measuring width */}
-          <div className="flex items-center" ref={setRef} style={{ width: 'max-content' }}>
-            {LOGOS.map((logo, idx) => (
-              <div
-                key={"set1-" + idx}
-                className="flex items-center justify-center asi-logo bg-naya-hm"
-                style={{
-                  height: LOGO_HEIGHT_DESKTOP,
-                  minWidth: '180px',
-                  marginRight: LOGO_GAP,
-                  padding: `0 ${LOGO_GAP}`,
-                  background: 'hsl(var(--naya-hm))',
-                }}
-              >
-                <img
-                  src={logo.src}
-                  alt={logo.alt}
-                  style={{
-                    height: '100%',
-                    width: 'auto',
-                    objectFit: 'contain',
-                    display: 'block',
-                    backgroundColor: 'hsl(var(--naya-hm))',
-                    maxWidth:
-                      logo.src.includes('ForbesLogo.png')
-                        ? '80px'
-                        : [
-                            'NYTLogo.png',
-                            'NYPLogo.png',
-                            'NRNLogo.png',
-                            'EaterLogo.png',
-                          ].some(name => logo.src.includes(name))
-                        ? '110px'
-                        : undefined,
-                  }}
-                  draggable={false}
-                />
-              </div>
-            ))}
-          </div>
-          {/* The rest of the sets for seamless fill */}
-          {Array.from({ length: repeatCount - 1 }).map((_, repIdx) => (
-            <div className="flex items-center" key={"set" + (repIdx + 2)} style={{ width: 'max-content' }}>
+          <div
+            className="flex items-center asi-track"
+            ref={trackRef}
+            style={{
+              width: 'max-content',
+              animation: setWidth ? `asi-scroll ${ANIMATION_DURATION}s linear infinite` : undefined,
+              height: '100%',
+            }}
+          >
+            <div className="flex items-center" ref={setRef} style={{ width: 'max-content', marginRight: '8rem' }} data-debug-setwidth={setWidth}>
               {LOGOS.map((logo, idx) => (
                 <div
-                  key={`set${repIdx + 2}-${idx}`}
+                  key={"set1-" + idx}
                   className="flex items-center justify-center asi-logo bg-naya-hm"
                   style={{
-                    height: LOGO_HEIGHT_DESKTOP,
-                    minWidth: '180px',
+                    height: isMobile ? LOGO_HEIGHT_MOBILE : LOGO_HEIGHT_DESKTOP,
+                    minWidth: isMobile ? '160px' : '176px',
+                    maxWidth: isMobile ? '160px' : '176px',
                     marginRight: LOGO_GAP,
                     padding: `0 ${LOGO_GAP}`,
                     background: 'hsl(var(--naya-hm))',
@@ -166,20 +234,33 @@ const ASI: React.FC = () => {
                     alt={logo.alt}
                     style={{
                       height: '100%',
-                      width: 'auto',
+                      width: logo.src.includes('NYTLogo.png')
+                        ? '175%'
+                        : logo.src.includes('NYPLogo.png')
+                        ? '160%'
+                        : logo.src.includes('NRNLogo.png')
+                        ? '140%'
+                        : logo.src.includes('CrainsLogo.png')
+                        ? '135%'
+                        : logo.src.includes('ForbesLogo.png')
+                        ? '130%'
+                        : '115%',
                       objectFit: 'contain',
                       display: 'block',
                       backgroundColor: 'hsl(var(--naya-hm))',
                       maxWidth:
-                        logo.src.includes('ForbesLogo.png')
-                          ? '80px'
-                          : [
-                              'NYTLogo.png',
-                              'NYPLogo.png',
-                              'NRNLogo.png',
-                              'EaterLogo.png',
-                            ].some(name => logo.src.includes(name))
-                          ? '110px'
+                        logo.src.includes('QSRLogo.png')
+                          ? '176px'
+                          : logo.src.includes('ForbesLogo.png')
+                          ? '176px'
+                          : logo.src.includes('NYTLogo.png')
+                          ? '193.6px'
+                          : ['NYPLogo.png', 'NRNLogo.png'].some(name => logo.src.includes(name))
+                          ? '193.6px'
+                          : logo.src.includes('EaterLogo.png')
+                          ? '176px'
+                          : logo.src.includes('CrainsLogo.png')
+                          ? '176px'
                           : undefined,
                     }}
                     draggable={false}
@@ -187,11 +268,65 @@ const ASI: React.FC = () => {
                 </div>
               ))}
             </div>
-          ))}
+            {Array.from({ length: repeatCount - 1 }).map((_, repIdx) => (
+              <div className="flex items-center" key={"set" + (repIdx + 2)} style={{ width: 'max-content', marginRight: '8rem' }}>
+                {LOGOS.map((logo, idx) => (
+                  <div
+                    key={`set${repIdx + 2}-${idx}`}
+                    className="flex items-center justify-center asi-logo bg-naya-hm"
+                    style={{
+                      height: LOGO_HEIGHT_DESKTOP,
+                      minWidth: '176px',
+                      maxWidth: '176px',
+                      marginRight: LOGO_GAP,
+                      padding: `0 ${LOGO_GAP}`,
+                      background: 'hsl(var(--naya-hm))',
+                    }}
+                  >
+                    <img
+                      src={logo.src}
+                      alt={logo.alt}
+                      style={{
+                        height: '100%',
+                        width: logo.src.includes('NYTLogo.png')
+                          ? '175%'
+                          : logo.src.includes('NYPLogo.png')
+                          ? '160%'
+                          : logo.src.includes('NRNLogo.png')
+                          ? '140%'
+                          : logo.src.includes('CrainsLogo.png')
+                          ? '135%'
+                          : logo.src.includes('ForbesLogo.png')
+                          ? '130%'
+                          : '115%',
+                        objectFit: 'contain',
+                        display: 'block',
+                        backgroundColor: 'hsl(var(--naya-hm))',
+                        maxWidth:
+                          logo.src.includes('QSRLogo.png')
+                            ? '176px'
+                            : logo.src.includes('ForbesLogo.png')
+                            ? '176px'
+                            : logo.src.includes('NYTLogo.png')
+                            ? '193.6px'
+                            : ['NYPLogo.png', 'NRNLogo.png'].some(name => logo.src.includes(name))
+                            ? '193.6px'
+                            : logo.src.includes('EaterLogo.png')
+                            ? '176px'
+                            : logo.src.includes('CrainsLogo.png')
+                            ? '176px'
+                            : undefined,
+                      }}
+                      draggable={false}
+                    />
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
-      {/* Bottom Border */}
-      {/* Responsive styles */}
+      <div className="h-7"></div>
       <style>{`
         @media (max-width: 768px) {
           section[data-asi] {
@@ -200,7 +335,8 @@ const ASI: React.FC = () => {
           }
           .asi-logo {
             height: ${LOGO_HEIGHT_MOBILE} !important;
-            min-width: 90px !important;
+            min-width: 160px !important;
+            max-width: 160px !important;
           }
         }
         [data-asi] .asi-track {

@@ -1,47 +1,155 @@
 import CollectionCard from './CollectionCard';
+import { useEffect, useState } from 'react';
+import { fetchShopifyStorefront } from '@/lib/shopify';
+import { useShopifyPageContent } from '@/hooks/useShopifyTextFile';
 
-const collections = [
-  {
-    name: 'Light',
-    subtitle: '(Hats, Socks, Accessories)',
-    image: '/CollectionsPlaceholder.jpg',
-  },
-  {
-    name: 'Medium',
-    subtitle: '(Tees)',
-    image: '/CollectionsPlaceholder.jpg',
-  },
-  {
-    name: 'Heavy',
-    subtitle: '(Sweatshirts, Sweatpants)',
-    image: '/CollectionsPlaceholder.jpg',
-  },
-];
+// Map our collection names to Shopify collection handles
+const COLLECTION_MAPPING = {
+  'Light': 'accessories',
+  'Medium': 'tees', 
+  'Heavy': 'sweaters-sweatpants'
+};
+
+const COLLECTIONS_QUERY = `
+  query GetCollections {
+    collections(first: 10) {
+      edges {
+        node {
+          id
+          handle
+          title
+          image {
+            url
+          }
+        }
+      }
+    }
+  }
+`;
 
 const HEADER_HEIGHT_PX = 64;
 
 const Collections = () => {
+  const [collections, setCollections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch dynamic header text from Shopify
+  const { content: headerText, loading: headerLoading, error: headerError } = useShopifyPageContent("collections_header");
+  
+  // Use fetched content if available, otherwise fallback to default
+  const displayHeaderText = headerText || "NAYA's Collections";
+  
+  console.log('🏪 Collections header state:', {
+    headerText,
+    headerLoading,
+    headerError,
+    displayHeaderText
+  });
+  
+  // Show error on screen for debugging
+  if (headerError) {
+    console.error('🚨 COLLECTIONS HEADER ERROR:', headerError);
+  }
+
+  useEffect(() => {
+    async function fetchCollections() {
+      try {
+        const res = await fetchShopifyStorefront(COLLECTIONS_QUERY);
+        const edges = res.data?.collections?.edges || [];
+        
+        // Map our collection names to Shopify data
+        const mappedCollections = Object.entries(COLLECTION_MAPPING).map(([displayName, handle]) => {
+          const shopifyCollection = edges.find((edge: any) => edge.node.handle === handle);
+          return {
+            name: displayName,
+            subtitle: displayName === 'Light' ? '(Hats, Socks, Accessories)' : 
+                     displayName === 'Medium' ? '(Tees)' : '(Sweatshirts, Sweatpants)',
+            image: shopifyCollection?.node?.image?.url || '/CollectionsPlaceholder.jpg',
+            handle: handle,
+            shopifyId: shopifyCollection?.node?.id
+          };
+        });
+        
+        setCollections(mappedCollections);
+      } catch (error) {
+        console.error('Error fetching collections:', error);
+         // Fallback to static data if Shopify fetch fails
+        setCollections([
+          {
+            name: 'Light',
+            subtitle: '(Hats, Socks, Accessories)',
+            image: '/CollectionsPlaceholder.jpg',
+            handle: 'accessories',
+          },
+          {
+            name: 'Medium',
+            subtitle: '(Tees)',
+            image: '/CollectionsPlaceholder.jpg',
+            handle: 'tees',
+          },
+          {
+            name: 'Heavy',
+            subtitle: '(Sweatshirts, Sweatpants)',
+            image: '/CollectionsPlaceholder.jpg',
+            handle: 'sweaters-sweatpants',
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchCollections();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="overflow-x-hidden w-full">
+              <section
+        className="pt-0 pb-16 bg-naya-hm flex flex-col justify-between overflow-x-hidden w-full"
+        style={{ minHeight: `calc(100vh - ${HEADER_HEIGHT_PX}px)` }}
+      >
+          <div className="w-full flex flex-col h-full mx-auto overflow-x-hidden">
+            <div className="text-left mb-8 px-4 pt-16">
+              <h2 className="text-4xl font-asc-m text-naya-dg mb-4">
+                {headerLoading ? "Loading..." : displayHeaderText}
+              </h2>
+            </div>
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-naya-dg">Loading collections...</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   return (
     <div className="overflow-x-hidden w-full">
       <section
-        className="py-0 bg-naya-hm flex flex-col justify-between overflow-x-hidden w-full"
-        style={{ minHeight: `calc(100vh - ${HEADER_HEIGHT_PX}px)` }}
+        className="pt-0 pb-16 bg-naya-hm flex flex-col justify-between overflow-x-hidden w-full min-h-[60vh] md:min-h-[calc(100vh-64px)]"
+        data-collections-section
+        id="collections"
       >
         <div className="w-full flex flex-col h-full mx-auto overflow-x-hidden">
           <div className="text-left mb-8 px-4 pt-16">
-            <h2 className="text-4xl font-asc-m text-naya-dg mb-4">NAYA's Collections</h2>
+            <h2 className="text-4xl font-asc-m text-naya-dg mb-4">
+              {headerLoading ? "Loading..." : displayHeaderText}
+            </h2>
           </div>
-          <div className="flex-1 flex items-center justify-center w-full">
-            <div className="flex gap-6 md:gap-8 w-full justify-center overflow-x-hidden">
+          <div className="flex-1 flex items-center justify-center w-full py-8 pb-12 bg-naya-dg">
+            <div className="flex gap-4 md:gap-8 w-full justify-start overflow-x-auto overflow-y-hidden px-4 scrollbar-hide md:justify-center md:overflow-x-visible md:px-0" style={{ scrollBehavior: 'smooth', touchAction: 'pan-x pan-y' }}>
               {collections.map((collection, index) => (
                 <div
-                  className="min-w-[180px] max-w-[320px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[60vh]"
-                  key={index}
+                  className="min-w-[140px] max-w-[240px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[45vh] md:h-[60vh] border-2 border-naya-lg p-0 rounded-[15px] overflow-hidden transition-transform duration-300 hover:scale-105"
+                  key={collection.handle}
                 >
                   <CollectionCard
                     name={collection.name}
                     subtitle={collection.subtitle}
                     image={collection.image}
+                    handle={collection.handle}
+                    shopifyId={collection.shopifyId}
                   />
                 </div>
               ))}

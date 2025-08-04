@@ -9,14 +9,15 @@ import ASI from '@/components/ASI';
 
 const Index = () => {
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'hsl(var(--naya-hm))' }}>
+    <div className="min-h-screen overflow-x-hidden" style={{ backgroundColor: 'hsl(var(--naya-hm))', overflowX: 'hidden', maxWidth: '100vw' }}>
       <Header />
+      <div className="h-16"></div>
       <Hero />
       <ProductGrid />
       <BrandStory />
       <Collections />
       <ASI />
-      <div style={{ height: '3rem', background: 'hsl(var(--naya-hm))' }} />
+      <div className="pb-6" style={{ height: '4rem', background: 'hsl(var(--naya-hm))' }} />
       <Footer />
     </div>
   );

@@ -1,16 +1,31 @@
+import { useNavigate } from 'react-router-dom';
+
 interface CollectionCardProps {
   name: string;
   subtitle: string;
   image: string;
+  handle?: string;
+  shopifyId?: string;
 }
 
-const CollectionCard = ({ name, subtitle, image }: CollectionCardProps) => {
+const CollectionCard = ({ name, subtitle, image, handle, shopifyId }: CollectionCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (handle) {
+      navigate(`/collection/${handle}`);
+    }
+  };
+
   return (
-    <div className="relative w-full h-full aspect-square border border-black rounded-[15px] overflow-hidden flex items-center justify-center group bg-gray-100">
+    <div 
+      className="relative w-full h-full aspect-square border-2 border-naya-dg rounded-[15px] overflow-hidden flex items-center justify-center group bg-gray-100 cursor-pointer transition-transform duration-300 hover:scale-105"
+      onClick={handleClick}
+    >
       <img
         src={image}
         alt={name}
-        className="absolute inset-0 w-full h-full object-cover z-0 group-hover:scale-105 transition-transform duration-300"
+        className="absolute inset-0 w-full h-full object-cover z-0 transition-transform duration-300"
       />
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className="relative z-20 flex flex-col items-center justify-center w-full h-full px-2">

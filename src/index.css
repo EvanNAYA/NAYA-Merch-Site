@@ -7,7 +7,7 @@
 
 @font-face {
   font-family: 'asc_m';
-  src: url('/fonts/AttilaSansClassic-Medium.otf') format('opentype');
+  src: url('/fonts/AttilaSansClassic-Regular.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
 }
@@ -97,7 +97,7 @@
 
     --radius: 0.5rem;
 
-    --naya-lg: 168 58% 32%;
+    --naya-lg: 151 68% 43%;
     --naya-dg: 168 58% 25%;
     --naya-hm: 39 67% 95%;
     --naya-brt: 189 64% 70%;
@@ -111,10 +111,19 @@
     @apply border-border;
   }
 
-  body {
-    @apply bg-background text-foreground font-sans;
-    font-family: 'Inter', sans-serif;
-  }
+  html, body {
+  @apply bg-background text-foreground font-sans;
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden !important;
+  max-width: 100vw;
+  width: 100vw;
+  position: relative;
+}
+
+* {
+  max-width: 100vw !important;
+  box-sizing: border-box;
+}
 }
 
 @layer utilities {
@@ -126,12 +135,20 @@
     background-color: hsl(var(--naya-lg));
   }
   
+  .border-naya-lg {
+    border-color: hsl(var(--naya-lg));
+  }
+  
   .text-naya-dg {
     color: hsl(var(--naya-dg));
   }
   
   .bg-naya-dg {
     background-color: hsl(var(--naya-dg));
+  }
+  
+  .border-naya-dg {
+    border-color: hsl(var(--naya-dg));
   }
   
   .text-naya-hm {
@@ -142,12 +159,20 @@
     background-color: hsl(var(--naya-hm));
   }
   
+  .border-naya-hm {
+    border-color: hsl(var(--naya-hm));
+  }
+  
   .text-naya-brt {
     color: hsl(var(--naya-brt));
   }
   
   .bg-naya-brt {
     background-color: hsl(var(--naya-brt));
+  }
+  
+  .border-naya-brt {
+    border-color: hsl(var(--naya-brt));
   }
   
   .text-naya-oo {
@@ -158,12 +183,20 @@
     background-color: hsl(var(--naya-oo));
   }
   
+  .border-naya-oo {
+    border-color: hsl(var(--naya-oo));
+  }
+  
   .text-naya-tm {
     color: hsl(var(--naya-tm));
   }
   
   .bg-naya-tm {
     background-color: hsl(var(--naya-tm));
+  }
+  
+  .border-naya-tm {
+    border-color: hsl(var(--naya-tm));
   }
   
   .text-naya-cb {
@@ -174,6 +207,10 @@
     background-color: hsl(var(--naya-cb));
   }
   
+  .border-naya-cb {
+    border-color: hsl(var(--naya-cb));
+  }
+  
   .text-naya-ep {
     color: hsl(var(--naya-ep));
   }
@@ -182,7 +219,20 @@
     background-color: hsl(var(--naya-ep));
   }
   
+  .border-naya-ep {
+    border-color: hsl(var(--naya-ep));
+  }
+  
   .hover-scale {
     @apply transition-transform duration-300 hover:scale-105;
+  }
+  
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 }
