@@ -124,8 +124,8 @@ const Collection = () => {
             onClick={() => navigate(-1)}
             className="flex items-center space-x-2 font-asc-r text-xl text-gray-700 hover:text-naya-lg transition-colors h-full"
           >
-            <ArrowLeft size={21} color="#374151" className="transition-colors group-hover:text-naya-lg" />
-            <span>BACK</span>
+            <ArrowLeft size={21} color="#374151" className="transition-colors group-hover:text-naya-lg translate-y-[1px]" />
+                            <span>back</span>
           </button>
         </div>
         {/* NAYA Logo - Center */}
