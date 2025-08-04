@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import { useCart } from './CartContext';
+import { createShopifyCheckout } from '../lib/checkout';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -9,7 +10,31 @@ interface CartSidebarProps {
 
 const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
   const { cart, removeFromCart, updateQuantity } = useCart();
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleCheckout = async () => {
+    if (cart.length === 0) return;
+    
+    console.log('Starting checkout with cart:', cart);
+    setIsCheckingOut(true);
+    try {
+      const checkout = await createShopifyCheckout(cart);
+      console.log('Checkout result:', checkout);
+      if (checkout?.webUrl) {
+        // Redirect to Shopify checkout
+        window.location.href = checkout.webUrl;
+      } else {
+        console.error('No webUrl in checkout response');
+        alert('Unable to create checkout. Please try again.');
+      }
+    } catch (error) {
+      console.error('Checkout error details:', error);
+      alert(`Checkout error: ${error.message || 'Please try again.'}`);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
 
   return (
     <div
@@ -79,10 +104,11 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
           </span>
         </div>
         <button
-          className="w-full rounded-full bg-naya-dg text-naya-hm font-asc-r py-2 text-xl transition-colors hover:bg-naya-lg"
-          onClick={() => {/* TODO: handle checkout */}}
+          className="w-full rounded-full bg-naya-dg text-naya-hm font-asc-r py-2 text-xl transition-colors hover:bg-naya-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleCheckout}
+          disabled={cart.length === 0 || isCheckingOut}
         >
-          CHECK OUT
+          {isCheckingOut ? 'PROCESSING...' : 'CHECK OUT'}
         </button>
       </div>
     </div>

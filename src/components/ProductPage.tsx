@@ -277,6 +277,14 @@ const ProductPage = ({ product }) => {
 
   return (
     <div className="min-h-screen bg-naya-hm">
+      {/* Overlay for cart sidebar */}
+      {isCartSidebarOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-300"
+          onClick={() => setIsCartSidebarOpen(false)}
+        />
+      )}
+      
       {/* Cart Sidebar */}
       <CartSidebar isOpen={isCartSidebarOpen} onClose={() => setIsCartSidebarOpen(false)} />
       {/* Header */}
