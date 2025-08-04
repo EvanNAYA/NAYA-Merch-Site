@@ -50,19 +50,29 @@ const ASI: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!setWidth) return;
-    // Convert 8rem to pixels (assuming 16px = 1rem)
-    const marginInPixels = 8 * 16; // 8rem = 128px
-    const totalDistance = setWidth + marginInPixels;
-    const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${totalDistance}px); } }`;
-    let styleSheet = document.getElementById('asi-scroll-keyframes');
-    if (!styleSheet) {
-      styleSheet = document.createElement('style');
-      styleSheet.id = 'asi-scroll-keyframes';
-      document.head.appendChild(styleSheet);
-    }
-    styleSheet.innerText = keyframes;
+    const updateAnimation = () => {
+      if (!setWidth) return;
+      // Convert 1.5vw to pixels (1.5% of viewport width)
+      const marginInPixels = window.innerWidth * 0.012; // 1.5vw
+      const totalDistance = setWidth + marginInPixels;
+      const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${totalDistance}px); } }`;
+      let styleSheet = document.getElementById('asi-scroll-keyframes');
+      if (!styleSheet) {
+        styleSheet = document.createElement('style');
+        styleSheet.id = 'asi-scroll-keyframes';
+        document.head.appendChild(styleSheet);
+      }
+      styleSheet.innerText = keyframes;
+    };
+
+    updateAnimation();
+    
+    // Recalculate animation on resize since we're using viewport units
+    window.addEventListener('resize', updateAnimation);
+    
     return () => {
+      window.removeEventListener('resize', updateAnimation);
+      const styleSheet = document.getElementById('asi-scroll-keyframes');
       if (styleSheet && styleSheet.parentNode) {
         styleSheet.parentNode.removeChild(styleSheet);
       }
@@ -215,7 +225,7 @@ const ASI: React.FC = () => {
               height: '100%',
             }}
           >
-            <div className="flex items-center" ref={setRef} style={{ width: 'max-content', marginRight: '8rem' }} data-debug-setwidth={setWidth}>
+            <div className="flex items-center" ref={setRef} style={{ width: 'max-content', marginRight: '1.2vw' }} data-debug-setwidth={setWidth}>
               {LOGOS.map((logo, idx) => (
                 <div
                   key={"set1-" + idx}
@@ -269,7 +279,7 @@ const ASI: React.FC = () => {
               ))}
             </div>
             {Array.from({ length: repeatCount - 1 }).map((_, repIdx) => (
-              <div className="flex items-center" key={"set" + (repIdx + 2)} style={{ width: 'max-content', marginRight: '8rem' }}>
+              <div className="flex items-center" key={"set" + (repIdx + 2)} style={{ width: 'max-content', marginRight: '1.2vw' }}>
                 {LOGOS.map((logo, idx) => (
                   <div
                     key={`set${repIdx + 2}-${idx}`}
