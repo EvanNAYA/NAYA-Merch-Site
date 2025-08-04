@@ -328,7 +328,7 @@ const ProductPage = ({ product }) => {
             onClick={() => setIsCartSidebarOpen(true)}
             aria-label="Open cart"
           >
-            CART ({cartCount})
+            cart ({cartCount})
           </button>
         </div>
       </div>

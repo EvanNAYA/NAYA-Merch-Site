@@ -7,18 +7,18 @@ import { useCart } from './CartContext';
 const HEADER_HEIGHT_PX = 64;
 
 const shopLinks = [
-  { label: 'SHOP ALL', href: 'https://eatnaya.com' },
-  { label: 'T-SHIRTS', href: 'https://eatnaya.com' },
-  { label: 'SWEATERS', href: 'https://eatnaya.com' },
-  { label: 'ACCESSORIES', href: 'https://eatnaya.com' },
-  { label: 'MISCELLANEOUS', href: 'https://eatnaya.com' },
+  { label: 'shop all', href: 'https://eatnaya.com' },
+  { label: 't-shirts', href: 'https://eatnaya.com' },
+  { label: 'sweaters', href: 'https://eatnaya.com' },
+  { label: 'accessories', href: 'https://eatnaya.com' },
+  { label: 'miscellaneous', href: 'https://eatnaya.com' },
 ];
 
 const infoLinks = [
-  { label: 'FAQS', href: 'https://eatnaya.com' },
-  { label: 'SHIPPING', href: 'https://eatnaya.com' },
-  { label: 'RETURNS', href: 'https://eatnaya.com' },
-  { label: 'CONTACT', href: 'https://eatnaya.com' },
+  { label: 'faqs', href: 'https://eatnaya.com' },
+  { label: 'shipping', href: 'https://eatnaya.com' },
+  { label: 'returns', href: 'https://eatnaya.com' },
+  { label: 'contact', href: 'https://eatnaya.com' },
 ];
 
 const Header = () => {
@@ -101,7 +101,7 @@ const Header = () => {
               key={link.label}
               href={link.href}
               className="font-asc-r text-naya-dg text-2xl py-2 transition-colors hover:text-naya-lg active:text-naya-lg focus:text-naya-lg"
-              style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              style={{ letterSpacing: '0.04em' }}
               onClick={e => {
                 e.preventDefault();
                 window.location.href = link.href;
@@ -143,7 +143,7 @@ const Header = () => {
               key={link.label}
               href={link.href}
               className="font-asc-r text-naya-dg text-2xl py-2 transition-colors hover:text-naya-lg active:text-naya-lg focus:text-naya-lg"
-              style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              style={{ letterSpacing: '0.04em' }}
               onClick={e => {
                 e.preventDefault();
                 window.location.href = link.href;
@@ -164,17 +164,17 @@ const Header = () => {
         <nav className="flex items-center h-full gap-4 md:gap-8 pointer-events-auto">
           <button
             className={`h-full flex items-center text-lg ${isShopDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${shopColor}`}
-            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em' }}
             onClick={openShopDrawer}
           >
-            SHOP
+            shop
           </button>
           <button
             className={`h-full flex items-center text-lg ${isInfoDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${infoColor}`}
-            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em' }}
             onClick={openInfoDrawer}
           >
-            INFO
+            info
           </button>
         </nav>
       </div>
@@ -184,8 +184,8 @@ const Header = () => {
         <div className="relative flex items-center justify-between h-16 px-3 md:px-8">
           {/* Left Navigation - invisible spacer */}
           <nav className="flex items-center h-full gap-4 md:gap-8 invisible">
-            <div className="h-full flex items-center text-lg">SHOP</div>
-            <div className="h-full flex items-center text-lg">INFO</div>
+            <div className="h-full flex items-center text-lg">shop</div>
+            <div className="h-full flex items-center text-lg">info</div>
           </nav>
 
           {/* Logo Centered */}
@@ -212,7 +212,7 @@ const Header = () => {
               className={`h-full px-2 md:px-0 font-asc-r text-lg hover:bg-transparent transition-colors ${cartColor}`}
               onClick={openCartSidebar}
             >
-              CART ({cartCount})
+              cart ({cartCount})
             </Button>
           </div>
         </div>
@@ -221,9 +221,9 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-gray-200">
             <div className="px-2 pt-2 pb-3 space-y-1">
-              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">Shop</a>
-              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">Info</a>
-              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">About</a>
+              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">shop</a>
+              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">info</a>
+              <a href="#" className="block px-3 py-2 text-gray-700 hover:text-naya-lg">about</a>
             </div>
           </div>
         )}

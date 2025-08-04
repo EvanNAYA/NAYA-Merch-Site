@@ -43,7 +43,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
     >
       {/* Top bar */}
       <div className="w-full flex items-center justify-between bg-naya-dg text-white" style={{ height: 64 }}>
-        <span className="font-asc-b text-xl px-6 text-naya-lg">CART ({cartCount})</span>
+        <span className="font-asc-b text-xl px-6 text-naya-lg">cart ({cartCount})</span>
         <button
           className="h-full px-6 flex items-center justify-center text-naya-hm text-2xl focus:outline-none"
           onClick={onClose}
@@ -55,7 +55,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Cart Items */}
       <div className="flex-1 overflow-y-auto p-4">
         {cart.length === 0 ? (
-          <div className="text-center text-gray-500 mt-8 font-pg-r">Your cart is empty.</div>
+          <div className="text-center text-gray-500 mt-8 font-pg-r">your cart is empty</div>
         ) : (
           cart.map((item) => (
             <div key={item.id} className="flex mb-6 border-b pb-4 h-32">
@@ -98,7 +98,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
       {/* Cart Footer (optional: total, checkout button) */}
       <div className="p-4 border-t border-gray-200">
         <div className="flex items-center justify-between mb-4">
-          <span className="font-asc-r text-naya-dg text-xl">ESTIMATED TOTAL</span>
+          <span className="font-asc-r text-naya-dg text-xl">estimated total</span>
           <span className="font-asc-r text-naya-dg text-xl">
             ${Math.floor(cart.reduce((sum, item) => sum + item.price * item.quantity, 0))}
           </span>
@@ -108,7 +108,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose }) => {
           onClick={handleCheckout}
           disabled={cart.length === 0 || isCheckingOut}
         >
-          {isCheckingOut ? 'PROCESSING...' : 'CHECK OUT'}
+                        {isCheckingOut ? 'processing...' : 'check out'}
         </button>
       </div>
     </div>
