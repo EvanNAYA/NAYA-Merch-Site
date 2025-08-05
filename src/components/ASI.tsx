@@ -52,8 +52,8 @@ const ASI: React.FC = () => {
   useEffect(() => {
     const updateAnimation = () => {
       if (!setWidth) return;
-      // Convert 1.5vw to pixels (1.5% of viewport width)
-      const marginInPixels = window.innerWidth * 0.012; // 1.5vw
+      // Convert 1.2vw to pixels (1.2% of viewport width)
+      const marginInPixels = window.innerWidth * 0.012; // 1.2vw
       const totalDistance = setWidth + marginInPixels;
       const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${totalDistance}px); } }`;
       let styleSheet = document.getElementById('asi-scroll-keyframes');
