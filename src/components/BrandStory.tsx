@@ -1,23 +1,25 @@
 import React from 'react';
-import { useShopifyPageContent } from '@/hooks/useShopifyTextFile';
+import { useShopifyStyledContent } from '@/hooks/useShopifyStyledContent';
 
 const HEADER_HEIGHT_PX = 64;
 
 const DEFAULT_TEXT = `We believe that transparency—where a product came from and who made it—shouldn't be a luxury, but a standard.\n\nWe partnered with KOTN and Everybody. World to ensure these products are ethically sourced and sustainably made.`;
 
 const BrandStory = ({ text }: { text?: string }) => {
-  // Fetch dynamic text from Shopify
-  const { content: brandStoryText, loading: textLoading, error: textError } = useShopifyPageContent("brandstory_text");
+  // Fetch dynamic styled text from Shopify
+  const { content: brandStoryStyled, loading: textLoading, error: textError } = useShopifyStyledContent("brandstory_text");
   
-  // Use fetched content first, then prop, then default
-  const displayText = brandStoryText || text || DEFAULT_TEXT;
+  // Use fetched styled content first, then prop, then default
+  const displayText = brandStoryStyled?.text || text || DEFAULT_TEXT;
+  const textColor = brandStoryStyled?.color;
   
   console.log('📖 BrandStory text state:', {
-    brandStoryText,
+    brandStoryStyled,
     textLoading,
     textError,
     propText: text,
-    displayText: displayText.substring(0, 50) + '...'
+    displayText: displayText.substring(0, 50) + '...',
+    textColor
   });
   
   // Show error on screen for debugging
@@ -54,7 +56,7 @@ const BrandStory = ({ text }: { text?: string }) => {
               maxHeight: '90%',
               width: '100%',
               maxWidth: '900px',
-              color: undefined,
+              color: textColor || undefined,
               fontSize: 'clamp(1.125rem, 2.75vw, 2.5rem)',
               lineHeight: 1.3,
               textAlign: 'center',

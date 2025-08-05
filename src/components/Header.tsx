@@ -3,15 +3,15 @@ import { Menu, X, ShoppingBag, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CartSidebar from './CartSidebar';
 import { useCart } from './CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const HEADER_HEIGHT_PX = 64;
 
 const shopLinks = [
-  { label: 'shop all', href: 'https://eatnaya.com' },
-  { label: 't-shirts', href: 'https://eatnaya.com' },
-  { label: 'sweaters', href: 'https://eatnaya.com' },
-  { label: 'accessories', href: 'https://eatnaya.com' },
-  { label: 'miscellaneous', href: 'https://eatnaya.com' },
+  { label: 'shop all', href: '/shop-all' },
+  { label: 'tees', href: '/collection/tees' },
+  { label: 'outerwear', href: '/collection/sweaters-sweatpants' },
+  { label: 'accessories, miscellaneous', href: '/collection/accessories' },
 ];
 
 const infoLinks = [
@@ -22,6 +22,7 @@ const infoLinks = [
 ];
 
 const Header = () => {
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isShopDrawerOpen, setIsShopDrawerOpen] = useState(false);
@@ -104,7 +105,7 @@ const Header = () => {
               style={{ letterSpacing: '0.04em' }}
               onClick={e => {
                 e.preventDefault();
-                window.location.href = link.href;
+                navigate(link.href);
                 closeDrawers();
               }}
             >

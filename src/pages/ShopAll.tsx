@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import ProductCard from '@/components/ProductCard';
 import { fetchShopifyStorefront } from '@/lib/shopify';
@@ -7,31 +7,23 @@ import Footer from '@/components/Footer';
 import { useCart } from '@/components/CartContext';
 import CartSidebar from '@/components/CartSidebar';
 
-const COLLECTION_QUERY = `
-  query GetCollectionByHandle($handle: String!) {
-    collectionByHandle(handle: $handle) {
-      id
-      title
-      description
-      image {
-        url
-      }
-      products(first: 50) {
-        edges {
-          node {
-            id
-            title
-            handle
-            images(first: 2) { edges { node { url } } }
-            options { name values }
-            variants(first: 50) {
-              edges {
-                node {
-                  id
-                  title
-                  price { amount currencyCode }
-                  selectedOptions { name value }
-                }
+const ALL_PRODUCTS_QUERY = `
+  query GetAllProducts {
+    products(first: 50) {
+      edges {
+        node {
+          id
+          title
+          handle
+          images(first: 2) { edges { node { url } } }
+          options { name values }
+          variants(first: 50) {
+            edges {
+              node {
+                id
+                title
+                price { amount currencyCode }
+                selectedOptions { name value }
               }
             }
           }
@@ -41,66 +33,51 @@ const COLLECTION_QUERY = `
   }
 `;
 
-const Collection = () => {
-  const { handle } = useParams();
+const ShopAll = () => {
   const navigate = useNavigate();
   const { cart } = useCart();
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const [collection, setCollection] = useState<any>(null);
+  const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false);
 
   useEffect(() => {
-    async function fetchCollection() {
+    async function fetchProducts() {
       setLoading(true);
       try {
-        const res = await fetchShopifyStorefront(COLLECTION_QUERY, { handle });
-        setCollection(res.data?.collectionByHandle);
+        const res = await fetchShopifyStorefront(ALL_PRODUCTS_QUERY);
+        const edges = res.data?.products?.edges || [];
+        
+        const mappedProducts = edges.map((edge: any) => ({
+          id: edge.node.id,
+          shopifyId: edge.node.id,
+          name: edge.node.title,
+          price: Math.floor(Number(edge.node.variants.edges[0]?.node.price.amount)),
+          currency: edge.node.variants.edges[0]?.node.price.currencyCode,
+          image: edge.node.images.edges[0]?.node.url,
+          hoverImage: edge.node.images.edges[1]?.node.url || edge.node.images.edges[0]?.node.url,
+          options: edge.node.options,
+          variants: edge.node.variants.edges.map((v: any) => v.node),
+        }));
+        
+        setProducts(mappedProducts);
       } catch (error) {
-        console.error('Error fetching collection:', error);
+        console.error('Error fetching products:', error);
       } finally {
         setLoading(false);
       }
     }
     
-    if (handle) {
-      fetchCollection();
-    }
-  }, [handle]);
+    fetchProducts();
+  }, []);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-naya-hm flex items-center justify-center">
-        <div className="text-naya-dg">loading collection...</div>
+        <div className="text-naya-dg">loading products...</div>
       </div>
     );
   }
-
-  if (!collection) {
-    return (
-      <div className="min-h-screen bg-naya-hm flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-asc-m text-naya-dg mb-4">collection not found</h1>
-        <button 
-          onClick={() => navigate(-1)} 
-          className="text-naya-dg underline font-pg-r"
-        >
-          go back
-        </button>
-      </div>
-    );
-  }
-
-  const products = collection.products.edges.map((edge: any) => ({
-    id: edge.node.id,
-    shopifyId: edge.node.id,
-    name: edge.node.title,
-    price: Math.floor(Number(edge.node.variants.edges[0]?.node.price.amount)),
-    currency: edge.node.variants.edges[0]?.node.price.currencyCode,
-    image: edge.node.images.edges[0]?.node.url,
-    hoverImage: edge.node.images.edges[1]?.node.url || edge.node.images.edges[0]?.node.url,
-    options: edge.node.options,
-    variants: edge.node.variants.edges.map((v: any) => v.node),
-  }));
 
   return (
     <div className="min-h-screen bg-naya-hm">
@@ -125,7 +102,7 @@ const Collection = () => {
             className="flex items-center space-x-2 font-asc-r text-xl text-gray-700 hover:text-naya-lg transition-colors h-full"
           >
             <ArrowLeft size={21} color="#374151" className="transition-colors group-hover:text-naya-lg translate-y-[1px]" />
-                            <span>back</span>
+            <span>back</span>
           </button>
         </div>
         {/* NAYA Logo - Center */}
@@ -161,7 +138,7 @@ const Collection = () => {
         </div>
       </div>
 
-      {/* Collection Title and Breadcrumbs */}
+      {/* Page Title and Breadcrumbs */}
       <div className="px-6 pt-8 pb-6">
         {/* Breadcrumbs */}
         <nav className="mb-4">
@@ -175,29 +152,15 @@ const Collection = () => {
               </button>
             </li>
             <li className="text-gray-400">/</li>
-            <li>
-              <button 
-                onClick={() => {
-                  navigate('/');
-                  setTimeout(() => {
-                    window.scrollTo(0, document.body.scrollHeight * 0.6);
-                  }, 100);
-                }}
-                className="hover:text-naya-lg transition-colors font-asc-r"
-              >
-                collections
-              </button>
-            </li>
-            <li className="text-gray-400">/</li>
             <li className="text-naya-dg font-asc-m">
-              {collection.title.toLowerCase()}
+              shop all
             </li>
           </ol>
         </nav>
         
-        {/* Collection Title */}
+        {/* Page Title */}
         <h1 className="text-4xl font-asc-b text-naya-dg mb-2">
-          {collection.title.toLowerCase()}
+          shop all
         </h1>
       </div>
 
@@ -223,7 +186,7 @@ const Collection = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-naya-dg font-asc-m">no products found in this collection.</p>
+            <p className="text-naya-dg font-asc-m">no products found.</p>
           </div>
         )}
       </div>
@@ -234,4 +197,4 @@ const Collection = () => {
   );
 };
 
-export default Collection; 
+export default ShopAll;

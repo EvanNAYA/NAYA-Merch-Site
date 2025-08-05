@@ -1,7 +1,7 @@
 import CollectionCard from './CollectionCard';
 import { useEffect, useState } from 'react';
 import { fetchShopifyStorefront } from '@/lib/shopify';
-import { useShopifyPageContent } from '@/hooks/useShopifyTextFile';
+import { useShopifyStyledContent } from '@/hooks/useShopifyStyledContent';
 
 // Map our collection names to Shopify collection handles
 const COLLECTION_MAPPING = {
@@ -34,16 +34,18 @@ const Collections = () => {
   const [loading, setLoading] = useState(true);
   
   // Fetch dynamic header text from Shopify
-  const { content: headerText, loading: headerLoading, error: headerError } = useShopifyPageContent("collections_header");
+  const { content: headerStyled, loading: headerLoading, error: headerError } = useShopifyStyledContent("collections_header");
   
-  // Use fetched content if available, otherwise fallback to default
-  const displayHeaderText = headerText || "NAYA's Collections";
+  // Use fetched styled content if available, otherwise fallback to default
+  const displayHeaderText = headerStyled?.text || "NAYA's Collections";
+  const headerColor = headerStyled?.color;
   
   console.log('🏪 Collections header state:', {
-    headerText,
+    headerStyled,
     headerLoading,
     headerError,
-    displayHeaderText
+    displayHeaderText,
+    headerColor
   });
   
   // Show error on screen for debugging
@@ -113,7 +115,10 @@ const Collections = () => {
       >
           <div className="w-full flex flex-col h-full mx-auto overflow-x-hidden">
             <div className="text-left mb-8 px-4 pt-16">
-              <h2 className="text-4xl font-asc-m text-naya-dg mb-4">
+              <h2 
+                className="text-4xl font-asc-m text-naya-dg mb-4"
+                style={{ color: headerColor || undefined }}
+              >
                 {headerLoading ? "Loading..." : displayHeaderText}
               </h2>
             </div>

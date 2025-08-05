@@ -1,10 +1,11 @@
 import React from "react";
 import { useShopifyPageContent } from "@/hooks/useShopifyTextFile";
+import { useShopifyStyledContent } from "@/hooks/useShopifyStyledContent";
 
 const Hero = () => {
-  const { content: heroText, loading, error } = useShopifyPageContent("hero_maintext");
-  const { content: heroSubtext, loading: subtextLoading, error: subtextError } = useShopifyPageContent("hero_subtext");
-  const { content: heroButtonText, loading: buttonLoading, error: buttonError } = useShopifyPageContent("hero_buttontext");
+  const { content: heroTextStyled, loading, error } = useShopifyStyledContent("hero_maintext");
+  const { content: heroSubtextStyled, loading: subtextLoading, error: subtextError } = useShopifyStyledContent("hero_subtext");
+  const { content: heroButtonTextStyled, loading: buttonLoading, error: buttonError } = useShopifyStyledContent("hero_buttontext");
   const { content: heroImageUrl } = useShopifyPageContent("hero_image");
   
   // Show error on screen for debugging
@@ -18,31 +19,39 @@ const Hero = () => {
     console.error('🚨 BUTTON TEXT ERROR:', buttonError);
   }
   
-  // Use fetched content if available, otherwise fallback to defaults
-  const displayText = heroText || "Middle Eastern Goodness";
-  const displaySubtext = heroSubtext || "Discover our collection of sustainably-made merchandise that celebrates heritage and the spirit of the Middle East.";
-  const displayButtonText = heroButtonText || "Shop All";
+  // Use fetched styled content if available, otherwise fallback to defaults
+  const displayText = heroTextStyled?.text || "Middle Eastern Goodness";
+  const displaySubtext = heroSubtextStyled?.text || "Discover our collection of sustainably-made merchandise that celebrates heritage and the spirit of the Middle East.";
+  const displayButtonText = heroButtonTextStyled?.text || "Shop All";
+  
+  // Extract colors from styled content
+  const mainTextColor = heroTextStyled?.color;
+  const subtextColor = heroSubtextStyled?.color;
+  const buttonTextColor = heroButtonTextStyled?.color;
   
   // Clean the image URL and use it for background
   const cleanImageUrl = heroImageUrl ? heroImageUrl.replace(/<[^>]*>/g, '').trim() : null;
   const displayImageUrl = cleanImageUrl || "/HeaderHolder.jpg";
   
   console.log('🎭 Hero component state:', { 
-    heroText, 
+    heroTextStyled, 
     loading, 
     error,
-    hasContent: !!heroText,
-    heroSubtext,
+    hasContent: !!heroTextStyled,
+    heroSubtextStyled,
     subtextLoading,
     subtextError,
-    hasSubtext: !!heroSubtext,
-    heroButtonText,
+    hasSubtext: !!heroSubtextStyled,
+    heroButtonTextStyled,
     buttonLoading,
     buttonError,
-    hasButtonText: !!heroButtonText,
+    hasButtonText: !!heroButtonTextStyled,
     heroImageUrl,
     cleanImageUrl,
-    displayImageUrl
+    displayImageUrl,
+    mainTextColor,
+    subtextColor,
+    buttonTextColor
   });
   
   return (
@@ -58,13 +67,22 @@ const Hero = () => {
       
       <div className="relative h-full flex items-center justify-center">
         <div className="text-center text-naya-hm max-w-4xl mx-auto px-4">
-          <h1 className="text-4xl md:text-6xl mb-6 leading-tight font-asc-b">
+          <h1 
+            className="text-4xl md:text-6xl mb-6 leading-tight font-asc-b"
+            style={{ color: mainTextColor || undefined }}
+          >
             {loading ? "Loading..." : displayText}
           </h1>
-          <p className="text-lg md:text-xl mb-8 opacity-90 max-w-2xl mx-auto font-pg-r">
+          <p 
+            className="text-lg md:text-xl mb-8 opacity-90 max-w-2xl mx-auto font-pg-r"
+            style={{ color: subtextColor || undefined }}
+          >
             {subtextLoading ? "Loading..." : displaySubtext}
           </p>
-          <button className="bg-naya-dg text-naya-hm px-8 py-3 rounded-lg transition-all hover:bg-naya-lg hover:scale-105 font-pg-r">
+          <button 
+            className="bg-naya-dg text-naya-hm px-8 py-3 rounded-lg transition-all hover:bg-naya-lg hover:scale-105 font-pg-r"
+            style={{ color: buttonTextColor || undefined }}
+          >
             {buttonLoading ? "Loading..." : displayButtonText}
           </button>
         </div>

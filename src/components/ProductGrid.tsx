@@ -3,7 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useCallback, useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { fetchShopifyStorefront } from '@/lib/shopify';
-import { useShopifyPageContent } from '@/hooks/useShopifyTextFile';
+import { useShopifyStyledContent } from '@/hooks/useShopifyStyledContent';
 
 const SHOPIFY_MAIN_CAROUSEL_HANDLE = "main-carousel";
 
@@ -41,16 +41,18 @@ const ProductGrid = () => {
   const [products, setProducts] = useState<any[]>([]);
   
   // Fetch dynamic header text from Shopify
-  const { content: headerText, loading: headerLoading, error: headerError } = useShopifyPageContent("productgrid_header");
+  const { content: headerStyled, loading: headerLoading, error: headerError } = useShopifyStyledContent("productgrid_header");
   
-  // Use fetched content if available, otherwise fallback to default
-  const displayHeaderText = headerText || "Featured Products";
+  // Use fetched styled content if available, otherwise fallback to default
+  const displayHeaderText = headerStyled?.text || "Featured Products";
+  const headerColor = headerStyled?.color;
   
   console.log('🛍️ ProductGrid header state:', {
-    headerText,
+    headerStyled,
     headerLoading,
     headerError,
-    displayHeaderText
+    displayHeaderText,
+    headerColor
   });
   
   // Show error on screen for debugging
@@ -91,7 +93,10 @@ const ProductGrid = () => {
     <section className="py-0 bg-naya-hm overflow-x-hidden min-h-[95vh] flex flex-col justify-between">
       <div className="w-full relative flex flex-col h-screen">
         <div className="text-left mb-8 px-4 sm:px-6 lg:px-8 pt-16">
-          <h2 className="text-4xl font-asc-m text-naya-dg mb-4">
+          <h2 
+            className="text-4xl font-asc-m text-naya-dg mb-4"
+            style={{ color: headerColor || undefined }}
+          >
             {headerLoading ? "Loading..." : displayHeaderText}
           </h2>
         </div>
