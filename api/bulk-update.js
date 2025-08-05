@@ -83,8 +83,45 @@ export default async function handler(req, res) {
       try {
         console.log(`\n🔄 Processing: ${product.title}`);
 
-        // Get current publications
-        const publications = await shopifyAdminAPI(`products/${product.id}/publications.json`);
+        // Try different approach - get product details first
+        const productDetails = await shopifyAdminAPI(`products/${product.id}.json`);
+        console.log(`  📋 Product details retrieved: ${productDetails.product?.title}`);
+
+        // Get current publications (if this endpoint exists)
+        let publications;
+        try {
+          publications = await shopifyAdminAPI(`products/${product.id}/publications.json`);
+          console.log('  📢 Publications found:', publications);
+        } catch (pubError) {
+          console.log('  ⚠️ Publications API not available, trying alternative approach');
+          
+          // Alternative: Use the product publish/unpublish API
+          try {
+            // First unpublish from online store (publication_id = 1)
+            await shopifyAdminAPI(`products/${product.id}.json`, 'PUT', {
+              product: {
+                id: product.id,
+                published: false,
+                published_scope: 'web'
+              }
+            });
+            console.log('  ✅ Unpublished from online store');
+            
+            // Then publish to specific sales channel (we'll need to find the right way to do this)
+            console.log('  ⚠️ Sales channel management needs manual configuration');
+            
+            results.push({
+              id: product.id,
+              title: product.title,
+              status: 'partial_success',
+              note: 'Unpublished from online store, sales channel needs manual config'
+            });
+            
+            continue;
+          } catch (altError) {
+            throw new Error(`Both publications and publish APIs failed: ${altError.message}`);
+          }
+        }
         
         // Remove from Online Store (channel_id 1)
         const onlineStorePub = publications.publications?.find(pub => pub.channel_id === 1);
