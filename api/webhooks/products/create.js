@@ -18,7 +18,10 @@ export default async function handler(req, res) {
     // Shopify Admin API configuration
     const shopifyDomain = process.env.VITE_SHOPIFY_DOMAIN;
     const adminToken = process.env.VITE_SHOPIFY_ADMIN_ACCESS_TOKEN;
-    const baseUrl = `https://${shopifyDomain}/admin/api/2023-10/`;
+    
+    // Clean domain - remove https:// if present
+    const cleanDomain = shopifyDomain?.replace('https://', '').replace('http://', '');
+    const baseUrl = `https://${cleanDomain}/admin/api/2023-10/`;
 
     // Helper function for Shopify Admin API calls
     const shopifyAdminAPI = async (endpoint, method = 'GET', data = null) => {

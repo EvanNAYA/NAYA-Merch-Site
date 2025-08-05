@@ -17,11 +17,24 @@ export default async function handler(req, res) {
     // Shopify Admin API configuration
     const shopifyDomain = process.env.VITE_SHOPIFY_DOMAIN;
     const adminToken = process.env.VITE_SHOPIFY_ADMIN_ACCESS_TOKEN;
-    const baseUrl = `https://${shopifyDomain}/admin/api/2023-10/`;
+    
+    // Clean domain - remove https:// if present
+    const cleanDomain = shopifyDomain?.replace('https://', '').replace('http://', '');
+    const baseUrl = `https://${cleanDomain}/admin/api/2023-10/`;
+    
+    console.log('🔧 Debug info:', {
+      domain: cleanDomain,
+      hasToken: !!adminToken,
+      tokenPrefix: adminToken?.substring(0, 10) + '...',
+      baseUrl
+    });
 
     // Helper function for Shopify Admin API calls
     const shopifyAdminAPI = async (endpoint, method = 'GET', data = null) => {
-      const response = await fetch(`${baseUrl}${endpoint}`, {
+      const fullUrl = `${baseUrl}${endpoint}`;
+      console.log(`🌐 API Call: ${method} ${fullUrl}`);
+      
+      const response = await fetch(fullUrl, {
         method,
         headers: {
           'X-Shopify-Access-Token': adminToken,
@@ -31,13 +44,34 @@ export default async function handler(req, res) {
       });
       
       if (!response.ok) {
-        throw new Error(`Shopify API error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error(`❌ API Error: ${response.status} ${response.statusText}`, errorText);
+        throw new Error(`Shopify API error: ${response.status} ${response.statusText} - ${errorText}`);
       }
       
       return response.json();
     };
 
+    // First, test basic API connection with shop info
+    console.log('🧪 Testing API connection...');
+    try {
+      const shopInfo = await shopifyAdminAPI('shop.json');
+      console.log('✅ API connection successful! Shop:', shopInfo.shop?.name);
+    } catch (testError) {
+      console.error('❌ API connection test failed:', testError.message);
+      return res.status(500).json({ 
+        error: 'Failed to connect to Shopify Admin API', 
+        details: testError.message,
+        debug: {
+          domain: cleanDomain,
+          hasToken: !!adminToken,
+          baseUrl
+        }
+      });
+    }
+
     // Get all Printify products
+    console.log('📦 Fetching Printify products...');
     const products = await shopifyAdminAPI('products.json?limit=250&vendor=Printify');
     const printifyProducts = products.products || [];
     
