@@ -338,7 +338,7 @@ const ProductPage = ({ product }) => {
         <div className="lg:relative">
           <div 
             ref={carouselContainerRef}
-            className={`w-full ${isFooterReached ? 'absolute' : 'fixed'} block`}
+            className={`w-full ${isFooterReached ? 'absolute' : 'fixed'} block bg-white rounded-lg shadow-lg`}
             style={{ 
               top: isFooterReached ? 'auto' : `${carouselTop}px`,
               bottom: isFooterReached ? '10px' : '4px',
