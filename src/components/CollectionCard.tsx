@@ -29,7 +29,7 @@ const CollectionCard = ({ name, subtitle, image, handle, shopifyId }: Collection
       />
       <div className="absolute inset-0 bg-black/30 z-10" />
       <div className="relative z-20 flex flex-col items-center justify-center w-full h-full px-2">
-        <h3 className="text-white text-2xl md:text-3xl font-light uppercase tracking-wider text-center drop-shadow-md">
+        <h3 className="text-white text-2xl md:text-3xl font-light tracking-wider text-center drop-shadow-md whitespace-pre-line">
           {name}
         </h3>
         <span className="text-white text-base md:text-lg font-normal text-center mt-2 drop-shadow-md">

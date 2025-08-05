@@ -57,13 +57,15 @@ const Collections = () => {
         const res = await fetchShopifyStorefront(COLLECTIONS_QUERY);
         const edges = res.data?.collections?.edges || [];
         
-        // Map our collection names to Shopify data
+        // Map our collection handles to Shopify data, using actual collection titles
         const mappedCollections = Object.entries(COLLECTION_MAPPING).map(([displayName, handle]) => {
           const shopifyCollection = edges.find((edge: any) => edge.node.handle === handle);
+          const originalName = shopifyCollection?.node?.title || handle;
+          // Convert to lowercase and replace commas with line breaks
+          const processedName = originalName.toLowerCase().replace(/,/g, '\n');
           return {
-            name: displayName,
-            subtitle: displayName === 'Light' ? '(Hats, Socks, Accessories)' : 
-                     displayName === 'Medium' ? '(Tees)' : '(Sweatshirts, Sweatpants)',
+            name: processedName,
+            subtitle: '', // Remove subtitle
             image: shopifyCollection?.node?.image?.url || '/CollectionsPlaceholder.jpg',
             handle: handle,
             shopifyId: shopifyCollection?.node?.id
@@ -76,20 +78,20 @@ const Collections = () => {
          // Fallback to static data if Shopify fetch fails
         setCollections([
           {
-            name: 'Light',
-            subtitle: '(Hats, Socks, Accessories)',
+            name: 'accessories',
+            subtitle: '',
             image: '/CollectionsPlaceholder.jpg',
             handle: 'accessories',
           },
           {
-            name: 'Medium',
-            subtitle: '(Tees)',
+            name: 'tees',
+            subtitle: '',
             image: '/CollectionsPlaceholder.jpg',
             handle: 'tees',
           },
           {
-            name: 'Heavy',
-            subtitle: '(Sweatshirts, Sweatpants)',
+            name: 'sweaters &\nsweatpants',
+            subtitle: '',
             image: '/CollectionsPlaceholder.jpg',
             handle: 'sweaters-sweatpants',
           },

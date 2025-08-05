@@ -112,7 +112,7 @@ const ASI: React.FC = () => {
         data-asi
       >
         <div className="px-4 pb-2 mb-8 pt-4">
-          <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">As Seen In</h2>
+          <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">as seen in</h2>
         </div>
         <div
           className="w-full flex items-center"
@@ -192,7 +192,7 @@ const ASI: React.FC = () => {
       data-asi
     >
       <div className="px-4 pb-2 mb-8 pt-4">
-        <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">As Seen In</h2>
+        <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">as seen in</h2>
       </div>
       <div
         className="w-full flex items-center"

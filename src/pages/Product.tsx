@@ -9,6 +9,7 @@ const PRODUCT_QUERY = `
       id
       title
       description
+      tags
       images(first: 10) { edges { node { url } } }
       options {
         name

@@ -71,7 +71,7 @@ const Collection = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-naya-hm flex items-center justify-center">
-        <div className="text-naya-dg">Loading collection...</div>
+        <div className="text-naya-dg">loading collection...</div>
       </div>
     );
   }
@@ -79,12 +79,12 @@ const Collection = () => {
   if (!collection) {
     return (
       <div className="min-h-screen bg-naya-hm flex flex-col items-center justify-center">
-        <h1 className="text-3xl font-asc-m text-naya-dg mb-4">Collection Not Found</h1>
+        <h1 className="text-3xl font-asc-m text-naya-dg mb-4">collection not found</h1>
         <button 
           onClick={() => navigate(-1)} 
           className="text-naya-dg underline font-pg-r"
         >
-          Go Back
+          go back
         </button>
       </div>
     );
@@ -171,7 +171,7 @@ const Collection = () => {
                 onClick={() => navigate('/')}
                 className="hover:text-naya-lg transition-colors font-asc-r"
               >
-                Home
+                home
               </button>
             </li>
             <li className="text-gray-400">/</li>
@@ -185,19 +185,19 @@ const Collection = () => {
                 }}
                 className="hover:text-naya-lg transition-colors font-asc-r"
               >
-                Collections
+                collections
               </button>
             </li>
             <li className="text-gray-400">/</li>
-            <li className="text-naya-dg font-asc-m">
-              {collection.title}
+            <li className="text-naya-dg font-asc-m whitespace-pre-line">
+              {collection.title.toLowerCase().replace(/,/g, '\n')}
             </li>
           </ol>
         </nav>
         
         {/* Collection Title */}
-        <h1 className="text-4xl font-asc-b text-naya-dg mb-2">
-          {collection.title}
+        <h1 className="text-4xl font-asc-b text-naya-dg mb-2 whitespace-pre-line">
+          {collection.title.toLowerCase().replace(/,/g, '\n')}
         </h1>
       </div>
 
@@ -223,7 +223,7 @@ const Collection = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <p className="text-naya-dg font-asc-m">No products found in this collection.</p>
+            <p className="text-naya-dg font-asc-m">no products found in this collection.</p>
           </div>
         )}
       </div>

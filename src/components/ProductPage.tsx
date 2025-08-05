@@ -112,6 +112,86 @@ const ProductPage = ({ product }) => {
   // Find the 'Size' option if it exists
   const sizeOption = product.options?.find((opt) => opt.name.toLowerCase() === 'size');
   const sizes = sizeOption ? sizeOption.values : null;
+  
+  // Debug logging for size data structure
+  console.log('🔍 PRODUCT OPTIONS:', product.options);
+  console.log('🔍 SIZE OPTION:', sizeOption);
+  console.log('🔍 SIZES ARRAY:', sizes);
+  if (sizes) {
+    sizes.forEach((size, index) => {
+      console.log(`🔍 Size ${index}:`, typeof size, size);
+    });
+  }
+
+  // Helper function to display size labels nicely
+  const getSizeDisplayLabel = (size: any) => {
+    console.log('🔍 Size value received:', `"${size}"`, 'Type:', typeof size, 'Full object:', size);
+    
+    // Handle different data types
+    let sizeString = '';
+    if (typeof size === 'string') {
+      sizeString = size;
+    } else if (typeof size === 'object' && size !== null) {
+      // If it's an object, try to get the value property
+      sizeString = size.value || size.title || size.name || String(size);
+    } else {
+      sizeString = String(size);
+    }
+    
+    const cleanSize = sizeString?.trim(); // Remove any whitespace
+    console.log('🔍 Cleaned size string:', `"${cleanSize}"`);
+    
+    // Case-insensitive check for "one size" in any capitalization
+    if (cleanSize?.toLowerCase() === 'one size') {
+      console.log('✅ Converting to OS');
+      return 'OS';
+    }
+    console.log('➡️ Keeping original size:', cleanSize);
+    return cleanSize;
+  };
+
+  // Helper function to get appropriate text size based on string length
+  const getSizeTextClass = (sizeLabel: string) => {
+    if (sizeLabel.length > 2) {
+      return 'text-sm'; // Smaller text for longer labels like "22oz"
+    }
+    return 'text-xl'; // Default size for short labels like "OS", "S", "M", "L"
+  };
+
+  // Helper function to sort sizes in the correct order
+  const sortSizes = (sizes: any[]) => {
+    // Standard clothing size order
+    const standardSizeOrder = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'];
+    
+    // Get display labels for all sizes
+    const sizesWithLabels = sizes.map(size => ({
+      original: size,
+      display: getSizeDisplayLabel(size).toUpperCase() // Convert to uppercase for comparison
+    }));
+    
+    // Check if all sizes are standard clothing sizes (or "OS" for One Size)
+    const allStandardSizes = sizesWithLabels.every(item => 
+      standardSizeOrder.includes(item.display) || item.display === 'OS'
+    );
+    
+    if (allStandardSizes) {
+      // Sort according to standard order
+      console.log('🔄 Sorting standard clothing sizes');
+      return sizesWithLabels.sort((a, b) => {
+        // Handle "OS" (One Size) - put it first
+        if (a.display === 'OS') return -1;
+        if (b.display === 'OS') return 1;
+        
+        const indexA = standardSizeOrder.indexOf(a.display);
+        const indexB = standardSizeOrder.indexOf(b.display);
+        return indexA - indexB;
+      }).map(item => item.original);
+    } else {
+      // Non-standard sizes (like oz measurements) - keep original order
+      console.log('🔄 Keeping original order for non-standard sizes');
+      return sizes;
+    }
+  };
 
   // Carousel navigation
   const scrollPrev = () => emblaApi && emblaApi.scrollPrev();
@@ -409,20 +489,25 @@ const ProductPage = ({ product }) => {
           {sizes && sizes.length > 0 && (
             <div className="mb-6">
               <div className="flex gap-4">
-                {sizes.map((size) => (
+                {sortSizes(sizes).map((size) => {
+                  console.log('🔍 Rendering size button for:', size, typeof size);
+                  const displayLabel = getSizeDisplayLabel(size);
+                  const textSizeClass = getSizeTextClass(displayLabel);
+                  return (
                   <button
                     key={size}
                     onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
-                    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-xl font-asc-m transition-colors
+                    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center ${textSizeClass} font-asc-m transition-colors
                       ${selectedSize === size
                         ? 'bg-naya-dg text-naya-hm border-naya-dg'
                         : 'bg-naya-hm text-naya-dg border-naya-dg hover:bg-naya-dg hover:text-naya-hm'}`}
                     style={{ outline: 'none' }}
-                    aria-label={`Select size ${size}`}
+                    aria-label={`Select size ${displayLabel}`}
                   >
-                    {size}
+                    {displayLabel}
                   </button>
-                ))}
+                  );
+                })}
               </div>
               {showSizeError && (
                 <div className="text-red-600 text-sm font-pg-r mt-2">Please select a size to add to cart.</div>
@@ -435,34 +520,34 @@ const ProductPage = ({ product }) => {
             className="w-48 py-4 rounded-lg font-pg-b text-lg transition-colors bg-naya-dg text-naya-hm hover:bg-naya-lg mb-6"
             onClick={handleAddToCart}
           >
-            Add to Cart
+            add to cart
           </button>
           
           {/* Product Features */}
-          <div className="mb-6">
-            <h3 className="text-lg font-asc-m text-naya-dg mb-3">Product Details</h3>
-            <div className="space-y-2 text-sm text-gray-700">
-              <div className="flex items-center">
-                <span className="w-2 h-2 bg-naya-lg rounded-full mr-3"></span>
-                <span>Premium organic cotton</span>
-              </div>
-              <div className="flex items-center">
-                <span className="w-2 h-2 bg-naya-lg rounded-full mr-3"></span>
-                <span>Ethically made</span>
-              </div>
-              <div className="flex items-center">
-                <span className="w-2 h-2 bg-naya-lg rounded-full mr-3"></span>
-                <span>Designed in NYC</span>
+          {product.tags && product.tags.length > 0 && (
+            <div className="mb-6">
+              <h3 className="text-xl font-asc-m text-naya-dg mb-3">product details</h3>
+              <div className="space-y-2 text-gray-700 font-pg-r text-xl leading-relaxed">
+                {product.tags.map((tag, index) => (
+                  <div key={index} className="flex items-center">
+                    <img 
+                      src="https://cdn.shopify.com/s/files/1/0920/6415/3970/files/checkmark.png?v=1754424065" 
+                      alt="checkmark" 
+                      className="w-4 h-4 mr-3 flex-shrink-0"
+                    />
+                    <span>{tag}</span>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
 
           
           {/* Suggested Products Section */}
           <div className="pb-16">
-            <h2 className="text-2xl font-asc-m text-naya-dg mb-6">You Might Also Like</h2>
+            <h2 className="text-2xl font-asc-m text-naya-dg mb-6">you might also like</h2>
             {loadingSuggested ? (
-              <div className="text-naya-dg">Loading suggested products...</div>
+              <div className="text-naya-dg">loading suggested products...</div>
             ) : (
               <div className="grid grid-cols-2 gap-4">
                 {suggestedProducts.map((suggestedProduct) => (
