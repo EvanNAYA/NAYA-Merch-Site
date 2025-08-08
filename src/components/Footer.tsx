@@ -57,7 +57,7 @@ const Footer = () => {
   } = useNewsletterSignup();
 
   return (
-    <footer className="bg-naya-hm pt-24 font-pg-r">
+    <footer className="bg-naya-hm pt-20 pb-18 font-pg-r">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {/* Company Info */}
@@ -164,7 +164,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-gray-200 text-center">
+        <div className="mt-16 pt-8 border-t border-gray-200 text-center pb-6">
           <p className="text-sm text-gray-500 font-pg-r">
             © 2025 NAYA, Inc. All rights reserved.
           </p>

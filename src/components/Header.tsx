@@ -9,9 +9,9 @@ const HEADER_HEIGHT_PX = 64;
 
 const shopLinks = [
   { label: 'shop all', href: '/shop-all' },
+  { label: 'accessories, miscellaneous', href: '/collection/accessories' },
   { label: 'tees', href: '/collection/tees' },
   { label: 'outerwear', href: '/collection/sweaters-sweatpants' },
-  { label: 'accessories, miscellaneous', href: '/collection/accessories' },
 ];
 
 const infoLinks = [

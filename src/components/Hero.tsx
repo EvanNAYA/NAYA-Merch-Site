@@ -1,8 +1,10 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { useShopifyPageContent } from "@/hooks/useShopifyTextFile";
 import { useShopifyStyledContent } from "@/hooks/useShopifyStyledContent";
 
 const Hero = () => {
+  const navigate = useNavigate();
   const { content: heroTextStyled, loading, error } = useShopifyStyledContent("hero_maintext");
   const { content: heroSubtextStyled, loading: subtextLoading, error: subtextError } = useShopifyStyledContent("hero_subtext");
   const { content: heroButtonTextStyled, loading: buttonLoading, error: buttonError } = useShopifyStyledContent("hero_buttontext");
@@ -82,6 +84,7 @@ const Hero = () => {
           <button 
             className="bg-naya-dg text-naya-hm px-8 py-3 rounded-lg transition-all hover:bg-naya-lg hover:scale-105 font-pg-r"
             style={{ color: buttonTextColor || undefined }}
+            onClick={() => navigate('/shop-all')}
           >
             {buttonLoading ? "Loading..." : displayButtonText}
           </button>
