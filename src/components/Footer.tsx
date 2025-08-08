@@ -57,7 +57,7 @@ const Footer = () => {
   } = useNewsletterSignup();
 
   return (
-    <footer className="bg-naya-hm pt-24 pb-16 font-pg-r">
+    <footer className="bg-naya-hm pt-24 font-pg-r">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {/* Company Info */}
