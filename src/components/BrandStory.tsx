@@ -1,5 +1,6 @@
 import React from 'react';
 import { useShopifyStyledContent } from '@/hooks/useShopifyStyledContent';
+import { useShopifyPageContent } from '@/hooks/useShopifyTextFile';
 
 const HEADER_HEIGHT_PX = 64;
 
@@ -8,6 +9,10 @@ const DEFAULT_TEXT = `We believe that transparency—where a product came from a
 const BrandStory = ({ text }: { text?: string }) => {
   // Fetch dynamic styled text from Shopify
   const { content: brandStoryStyled, loading: textLoading, error: textError } = useShopifyStyledContent("brandstory_text");
+  // Fetch video URL from Shopify page content
+  const { content: brandStoryVideoUrl } = useShopifyPageContent("brandstory_video");
+  const cleanVideoUrl = brandStoryVideoUrl ? brandStoryVideoUrl.replace(/<[^>]*>/g, '').trim() : null;
+  const displayVideoUrl = cleanVideoUrl || "/60sBeirut.mp4";
   
   // Use fetched styled content first, then prop, then default
   const displayText = brandStoryStyled?.text || text || DEFAULT_TEXT;
@@ -19,7 +24,10 @@ const BrandStory = ({ text }: { text?: string }) => {
     textError,
     propText: text,
     displayText: displayText.substring(0, 50) + '...',
-    textColor
+    textColor,
+    brandStoryVideoUrl,
+    cleanVideoUrl,
+    displayVideoUrl
   });
   
   // Show error on screen for debugging
@@ -37,7 +45,7 @@ const BrandStory = ({ text }: { text?: string }) => {
         {/* Video background */}
         <video
           className="absolute inset-0 w-full h-full object-cover z-0"
-          src="/60sBeirut.mp4"
+          src={displayVideoUrl}
           autoPlay
           loop
           muted

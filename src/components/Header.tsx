@@ -14,59 +14,44 @@ const shopLinks = [
   { label: 'outerwear', href: '/collection/sweaters-sweatpants' },
 ];
 
-const infoLinks = [
-  { label: 'faqs', href: 'https://eatnaya.com' },
-  { label: 'shipping', href: 'https://eatnaya.com' },
-  { label: 'returns', href: 'https://eatnaya.com' },
-  { label: 'contact', href: 'https://eatnaya.com' },
-];
+// Removed Info links and drawer per request
 
 const Header = () => {
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const [isShopDrawerOpen, setIsShopDrawerOpen] = useState(false);
-  const [isInfoDrawerOpen, setIsInfoDrawerOpen] = useState(false);
   const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false);
   const { cart } = useCart();
 
   // Handle body scroll lock when any drawer is open
   if (typeof window !== 'undefined') {
-    document.body.style.overflow = (isShopDrawerOpen || isInfoDrawerOpen || isCartSidebarOpen) ? 'hidden' : '';
+    document.body.style.overflow = (isShopDrawerOpen || isCartSidebarOpen) ? 'hidden' : '';
   }
 
   // Handlers for mutual exclusivity
   const openShopDrawer = () => {
-    setIsInfoDrawerOpen(false);
     setIsCartSidebarOpen(false);
     setIsShopDrawerOpen(true);
   };
-  const openInfoDrawer = () => {
-    setIsShopDrawerOpen(false);
-    setIsCartSidebarOpen(false);
-    setIsInfoDrawerOpen(true);
-  };
   const openCartSidebar = () => {
     setIsShopDrawerOpen(false);
-    setIsInfoDrawerOpen(false);
     setIsCartSidebarOpen(true);
   };
   const closeDrawers = () => {
     setIsShopDrawerOpen(false);
-    setIsInfoDrawerOpen(false);
     setIsCartSidebarOpen(false);
   };
 
   // Determine color states
-  const shopColor = (isShopDrawerOpen || isInfoDrawerOpen) ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
-  const infoColor = (isShopDrawerOpen || isInfoDrawerOpen) ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
+  const shopColor = isShopDrawerOpen ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
   const cartColor = isCartSidebarOpen ? 'text-naya-lg' : 'text-naya-dg hover:text-naya-lg';
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
       {/* Overlay for side drawers */}
-      {(isShopDrawerOpen || isInfoDrawerOpen || isCartSidebarOpen) && (
+      {(isShopDrawerOpen || isCartSidebarOpen) && (
         <div
           className="fixed inset-0 z-40 bg-black/40 transition-opacity duration-300"
           onClick={closeDrawers}
@@ -115,47 +100,7 @@ const Header = () => {
         </nav>
       </div>
       
-      {/* INFO Side Drawer */}
-      <div
-        className={`fixed top-0 left-0 z-50 h-full bg-naya-hm shadow-lg transition-transform duration-300 flex flex-col
-          ${isInfoDrawerOpen ? 'translate-x-0' : '-translate-x-full'}
-          w-[33vw] max-w-[400px] min-w-[260px] md:w-[33vw] md:max-w-[500px] md:min-w-[320px]
-          sm:w-[90vw] sm:max-w-[90vw] sm:min-w-[0]`}
-        style={{ width: isInfoDrawerOpen ? (window.innerWidth < 640 ? '90vw' : '33vw') : undefined }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Full-width black top bar with X only */}
-        <div
-          className="w-full flex items-center justify-end bg-naya-dg"
-          style={{ height: HEADER_HEIGHT_PX }}
-        >
-          <button
-            className="h-full px-6 flex items-center justify-center text-naya-hm text-2xl focus:outline-none"
-            onClick={closeDrawers}
-            aria-label="Close menu"
-          >
-            <X size={28} />
-          </button>
-        </div>
-        {/* Links */}
-        <nav className="flex flex-col gap-2 mt-8 px-8">
-          {infoLinks.map(link => (
-            <a
-              key={link.label}
-              href={link.href}
-              className="font-asc-r text-naya-dg text-2xl py-2 transition-colors hover:text-naya-lg active:text-naya-lg focus:text-naya-lg"
-              style={{ letterSpacing: '0.04em' }}
-              onClick={e => {
-                e.preventDefault();
-                window.location.href = link.href;
-                closeDrawers();
-              }}
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-      </div>
+      {/* INFO Side Drawer removed */}
       
       {/* CART Sidebar */}
       <CartSidebar isOpen={isCartSidebarOpen} onClose={closeDrawers} />
@@ -170,13 +115,6 @@ const Header = () => {
           >
             shop
           </button>
-          <button
-            className={`h-full flex items-center text-lg ${isInfoDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${infoColor}`}
-            style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em' }}
-            onClick={openInfoDrawer}
-          >
-            info
-          </button>
         </nav>
       </div>
       
@@ -186,7 +124,6 @@ const Header = () => {
           {/* Left Navigation - invisible spacer */}
           <nav className="flex items-center h-full gap-4 md:gap-8 invisible">
             <div className="h-full flex items-center text-lg">shop</div>
-            <div className="h-full flex items-center text-lg">info</div>
           </nav>
 
           {/* Logo Centered */}
