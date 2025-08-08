@@ -64,7 +64,7 @@ const Hero = () => {
           alt="NAYA team members, wearing NAYA merch, working together to cook delicious bowls and rolls for store guests"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-30"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-60"></div>
       </div>
       
       <div className="relative h-full flex items-center justify-center">
@@ -76,7 +76,7 @@ const Hero = () => {
             {loading ? "Loading..." : displayText}
           </h1>
           <p 
-            className="text-lg md:text-xl mb-8 opacity-90 max-w-2xl mx-auto font-pg-r"
+            className="text-lg md:text-xl mb-6 opacity-90 max-w-2xl mx-auto font-pg-r"
             style={{ color: subtextColor || undefined }}
           >
             {subtextLoading ? "Loading..." : displaySubtext}

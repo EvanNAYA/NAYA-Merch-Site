@@ -99,9 +99,9 @@ const ShopAll = () => {
         <div className="absolute top-0 left-0 h-full flex items-center pl-8">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 font-asc-r text-xl text-gray-700 hover:text-naya-lg transition-colors h-full"
+            className="group flex items-center space-x-2 font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full"
           >
-            <ArrowLeft size={21} color="#374151" className="transition-colors group-hover:text-naya-lg translate-y-[1px]" />
+            <ArrowLeft size={21} className="translate-y-[1px]" />
             <span>back</span>
           </button>
         </div>
@@ -129,7 +129,7 @@ const ShopAll = () => {
         {/* Cart (N) button */}
         <div className="absolute top-0 right-0 h-full flex items-center pr-8">
           <button
-            className="font-asc-r text-xl text-gray-700 hover:text-naya-lg transition-colors h-full flex items-center"
+            className="font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full flex items-center"
             onClick={() => setIsCartSidebarOpen(true)}
             aria-label="Open cart"
           >
