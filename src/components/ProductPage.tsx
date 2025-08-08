@@ -102,6 +102,10 @@ const ProductPage = ({ product }) => {
   const [carouselTop, setCarouselTop] = useState(64); // header height
   const [isFooterReached, setIsFooterReached] = useState(false);
   const [carouselWidth, setCarouselWidth] = useState('50vw');
+  const [isPortrait, setIsPortrait] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerHeight > window.innerWidth;
+  });
   
   // Debug: Log all available images
   console.log('Product images:', images);
@@ -283,6 +287,12 @@ const ProductPage = ({ product }) => {
 
   // Dynamic carousel positioning and sizing
   useEffect(() => {
+    if (isPortrait) {
+      // Portrait (height > width): simple, non-sticky carousel around 50vh
+      setCarouselHeight('50vh');
+      setIsFooterReached(false);
+      return; // Skip sticky logic
+    }
     const updateCarouselPosition = () => {
       if (productNameRef.current) {
         const productNameRect = productNameRef.current.getBoundingClientRect();
@@ -337,7 +347,20 @@ const ProductPage = ({ product }) => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', updateCarouselPosition);
     };
-  }, [product]);
+  }, [product, isPortrait]);
+
+  // Track orientation/viewport ratio to switch between portrait and non-portrait layouts
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const update = () => setIsPortrait(window.innerHeight > window.innerWidth);
+    update();
+    window.addEventListener('resize', update, { passive: true });
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+    };
+  }, []);
 
   const handleAddToCart = () => {
     if (sizes && !selectedSize) {
@@ -371,10 +394,10 @@ const ProductPage = ({ product }) => {
       <div className="bg-naya-hm px-4 sticky top-0 z-30 shadow-lg" style={{ height: 64 }}>
         <div className="max-w-7xl mx-auto flex items-center h-full" />
         {/* Back button */}
-        <div className="absolute top-0 left-0 h-full flex items-center pl-8">
+        <div className="absolute top-0 left-0 h-full flex items-center pl-3 md:pl-8">
           <button
             onClick={() => navigate(-1)}
-            className="group flex items-center space-x-2 font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full"
+            className="group flex items-center space-x-1 font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full"
           >
             <ArrowLeft size={21} className="translate-y-[1px]" />
             <span>back</span>
@@ -402,7 +425,7 @@ const ProductPage = ({ product }) => {
           </button>
         </div>
         {/* Cart (N) button */}
-        <div className="absolute top-0 right-0 h-full flex items-center pr-8">
+        <div className="absolute top-0 right-0 h-full flex items-center pr-3 md:pr-8">
           <button
             className="font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full flex items-center"
             onClick={() => setIsCartSidebarOpen(true)}
@@ -413,163 +436,286 @@ const ProductPage = ({ product }) => {
         </div>
       </div>
       {/* Main Content Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-        {/* Left Column - Dynamic Carousel */}
-        <div className="lg:relative">
-          <div 
-            ref={carouselContainerRef}
-            className={`w-full ${isFooterReached ? 'absolute' : 'fixed'} block bg-white rounded-lg shadow-lg`}
-            style={{ 
-              top: isFooterReached ? 'auto' : `${carouselTop}px`,
-              bottom: isFooterReached ? '10px' : '4px',
-              left: 0,
-              width: window.innerWidth >= 1024 ? '50vw' : '100vw', // 50vw on desktop, 100vw on mobile
-              height: carouselHeight,
-              maxHeight: '85vh',
-              zIndex: 20
-            }}
-          >
-            <div className="flex flex-col h-full w-full px-6">
-              {/* Carousel - takes most of the space */}
-              <div className="flex-1 relative w-full min-h-0">
-                <div ref={emblaRef} className="overflow-hidden w-full h-full rounded-xl">
-                  <div className="flex h-full">
-                    {images.map((img, idx) => (
-                      <div key={idx} className="flex-shrink-0 h-full flex items-center justify-center" style={{ minWidth: '100%' }}>
-                        <img 
-                          src={img} 
-                          alt={`${product.title} - Image ${idx + 1}`} 
-                          className="max-h-full max-w-full object-contain rounded-xl" 
-                          onLoad={() => console.log(`Image ${idx + 1} loaded:`, img)}
-                          onError={() => console.log(`Image ${idx + 1} failed to load:`, img)}
-                        />
-                      </div>
-                    ))}
-                  </div>
+      {isPortrait ? (
+        // Portrait layout: simple stack, carousel above product info
+        <div className="flex flex-col">
+          {/* Carousel block (non-sticky) */}
+          <div className="w-full bg-white">
+            <div className="w-full" style={{ height: '50vh' }}>
+              <div ref={emblaRef} className="overflow-hidden w-full h-full">
+                <div className="flex h-full">
+                  {images.map((img, idx) => (
+                    <div key={idx} className="flex-shrink-0 h-full flex items-center justify-center" style={{ minWidth: '100%' }}>
+                      <img 
+                        src={img} 
+                        alt={`${product.title} - Image ${idx + 1}`} 
+                        className="max-h-full max-w-full object-contain" 
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
-              
-              {/* Arrows at bottom left - fixed height - only show if multiple images */}
-              {images.length > 1 && (
-                <div className="flex gap-4 justify-start py-4 flex-shrink-0 pl-6">
-                  <button
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
-                    onClick={scrollPrev}
-                    aria-label="Previous image"
-                  >
-                    <ArrowLeft size={ARROW_SIZE} color="hsl(var(--naya-hm))" />
-                  </button>
-                  <button
-                    className="w-12 h-12 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
-                    onClick={scrollNext}
-                    aria-label="Next image"
-                  >
-                    <ArrowLeft size={ARROW_SIZE} color="hsl(var(--naya-hm))" style={{ transform: 'rotate(180deg)' }} />
-                  </button>
-                  <div className="text-xs text-gray-500 flex items-center ml-4">
-                    {carouselIndex + 1} / {images.length}
-                  </div>
+            </div>
+            {/* Carousel controls */}
+            {images.length > 1 && (
+              <div className="flex gap-4 justify-center py-3">
+                <button
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
+                  onClick={scrollPrev}
+                  aria-label="Previous image"
+                >
+                  <ArrowLeft size={22} color="hsl(var(--naya-hm))" />
+                </button>
+                <button
+                  className="w-10 h-10 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
+                  onClick={scrollNext}
+                  aria-label="Next image"
+                >
+                  <ArrowLeft size={22} color="hsl(var(--naya-hm))" style={{ transform: 'rotate(180deg)' }} />
+                </button>
+                <div className="text-xs text-gray-500 flex items-center ml-2">
+                  {carouselIndex + 1} / {images.length}
                 </div>
-              )}
-            </div>
-          </div>
-          
-
-        </div>
-        
-        {/* Right Column - Product Details */}
-        <div className="flex flex-col px-6 pt-8">
-          <h1 ref={productNameRef} className="text-3xl md:text-4xl font-asc-b text-naya-dg mb-4 text-left">{product.title}</h1>
-          <div className="text-2xl md:text-3xl font-asc-m text-naya-dg mb-6 text-left">
-            ${Math.floor(Number(product.variants?.edges[0]?.node.price.amount))}
-          </div>
-          <div className="mb-8 text-gray-700 font-pg-r text-xl leading-relaxed text-left">{product.description}</div>
-          
-          {/* Sizes (only if present) */}
-          {sizes && sizes.length > 0 && (
-            <div className="mb-6">
-              <div className="flex gap-4">
-                {sortSizes(sizes).map((size) => {
-                  console.log('🔍 Rendering size button for:', size, typeof size);
-                  const displayLabel = getSizeDisplayLabel(size);
-                  const textSizeClass = getSizeTextClass(displayLabel);
-                  return (
-                  <button
-                    key={size}
-                    onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
-                    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center ${textSizeClass} font-asc-m transition-colors
-                      ${selectedSize === size
-                        ? 'bg-naya-dg text-naya-hm border-naya-dg'
-                        : 'bg-naya-hm text-naya-dg border-naya-dg hover:bg-naya-dg hover:text-naya-hm'}`}
-                    style={{ outline: 'none' }}
-                    aria-label={`Select size ${displayLabel}`}
-                  >
-                    {displayLabel}
-                  </button>
-                  );
-                })}
-              </div>
-              {showSizeError && (
-                <div className="text-red-600 text-sm font-pg-r mt-2">Please select a size to add to cart.</div>
-              )}
-            </div>
-          )}
-
-          {/* Add to Cart Button */}
-          <button
-            className="w-48 py-4 rounded-lg font-pg-b text-lg transition-colors bg-naya-dg text-naya-hm hover:bg-naya-lg mb-6"
-            onClick={handleAddToCart}
-          >
-            add to cart
-          </button>
-          
-          {/* Product Features */}
-          {product.tags && product.tags.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-xl font-asc-m text-naya-dg mb-3">product details</h3>
-              <div className="space-y-2 text-gray-700 font-pg-r text-xl leading-relaxed">
-                {product.tags.map((tag, index) => (
-                  <div key={index} className="flex items-center">
-                    <img 
-                      src="https://cdn.shopify.com/s/files/1/0920/6415/3970/files/checkmark.png?v=1754424065" 
-                      alt="checkmark" 
-                      className="w-4 h-4 mr-3 flex-shrink-0"
-                    />
-                    <span>{tag}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          
-          {/* Suggested Products Section */}
-          <div className="pb-16">
-            <h2 className="text-2xl font-asc-m text-naya-dg mb-6">you might also like</h2>
-            {loadingSuggested ? (
-              <div className="text-naya-dg">loading suggested products...</div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {suggestedProducts.map((suggestedProduct) => (
-                  <div key={suggestedProduct.id} className="border-2 border-naya-lg rounded-[15px] bg-white">
-                    <ProductCard
-                      name={suggestedProduct.name}
-                      price={suggestedProduct.price}
-                      image={suggestedProduct.image}
-                      hoverImage={suggestedProduct.hoverImage}
-                      id={suggestedProduct.id}
-                      currency={suggestedProduct.currency}
-                      shopifyId={suggestedProduct.shopifyId}
-                      options={suggestedProduct.options}
-                      variants={suggestedProduct.variants}
-                    />
-                  </div>
-                ))}
               </div>
             )}
           </div>
+
+          {/* Product Details */}
+          <div className="flex flex-col px-6 pt-6">
+            <h1 ref={productNameRef} className="text-3xl font-asc-b text-naya-dg mb-4 text-left">{product.title}</h1>
+            <div className="text-2xl font-asc-m text-naya-dg mb-6 text-left">
+              ${Math.floor(Number(product.variants?.edges[0]?.node.price.amount))}
+            </div>
+            <div className="mb-8 text-gray-700 font-pg-r text-lg leading-relaxed text-left">{product.description}</div>
+
+            {sizes && sizes.length > 0 && (
+              <div className="mb-6">
+                <div className="flex gap-3 flex-wrap">
+                  {sortSizes(sizes).map((size) => {
+                    const displayLabel = getSizeDisplayLabel(size);
+                    const textSizeClass = getSizeTextClass(displayLabel);
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
+                        className={`w-11 h-11 rounded-full border-2 flex items-center justify-center ${textSizeClass} font-asc-m transition-colors
+                          ${selectedSize === size
+                            ? 'bg-naya-dg text-naya-hm border-naya-dg'
+                            : 'bg-naya-hm text-naya-dg border-naya-dg hover:bg-naya-dg hover:text-naya-hm'}`}
+                        style={{ outline: 'none' }}
+                        aria-label={`Select size ${displayLabel}`}
+                      >
+                        {displayLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+                {showSizeError && (
+                  <div className="text-red-600 text-sm font-pg-r mt-2">Please select a size to add to cart.</div>
+                )}
+              </div>
+            )}
+
+            <button
+              className="w-48 py-4 rounded-lg font-pg-b text-lg transition-colors bg-naya-dg text-naya-hm hover:bg-naya-lg mb-6"
+              onClick={handleAddToCart}
+            >
+              add to cart
+            </button>
+
+            {product.tags && product.tags.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-asc-m text-naya-dg mb-3">product details</h3>
+                <div className="space-y-2 text-gray-700 font-pg-r text-lg leading-relaxed">
+                  {product.tags.map((tag, index) => (
+                    <div key={index} className="flex items-center">
+                      <img 
+                        src="https://cdn.shopify.com/s/files/1/0920/6415/3970/files/checkmark.png?v=1754424065" 
+                        alt="checkmark" 
+                        className="w-4 h-4 mr-3 flex-shrink-0"
+                      />
+                      <span>{tag}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Suggested Products */}
+            <div className="pb-16">
+              <h2 className="text-2xl font-asc-m text-naya-dg mb-6">you might also like</h2>
+              {loadingSuggested ? (
+                <div className="text-naya-dg">loading suggested products...</div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {suggestedProducts.map((suggestedProduct) => (
+                    <div key={suggestedProduct.id} className="border-2 border-naya-lg rounded-[15px] bg-white">
+                      <ProductCard
+                        name={suggestedProduct.name}
+                        price={suggestedProduct.price}
+                        image={suggestedProduct.image}
+                        hoverImage={suggestedProduct.hoverImage}
+                        id={suggestedProduct.id}
+                        currency={suggestedProduct.currency}
+                        shopifyId={suggestedProduct.shopifyId}
+                        options={suggestedProduct.options}
+                        variants={suggestedProduct.variants}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        // Non-portrait (desktop/landscape): original dynamic layout
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+          {/* Left Column - Dynamic Carousel */}
+          <div className="lg:relative">
+            <div 
+              ref={carouselContainerRef}
+              className={`w-full ${isFooterReached ? 'absolute' : 'fixed'} block bg-white rounded-lg shadow-lg`}
+              style={{ 
+                top: isFooterReached ? 'auto' : `${carouselTop}px`,
+                bottom: isFooterReached ? '10px' : '4px',
+                left: 0,
+                width: window.innerWidth >= 1024 ? '50vw' : '100vw',
+                height: carouselHeight,
+                maxHeight: '85vh',
+                zIndex: 20
+              }}
+            >
+              <div className="flex flex-col h-full w-full px-6">
+                <div className="flex-1 relative w-full min-h-0">
+                  <div ref={emblaRef} className="overflow-hidden w-full h-full rounded-xl">
+                    <div className="flex h-full">
+                      {images.map((img, idx) => (
+                        <div key={idx} className="flex-shrink-0 h-full flex items-center justify-center" style={{ minWidth: '100%' }}>
+                          <img 
+                            src={img} 
+                            alt={`${product.title} - Image ${idx + 1}`} 
+                            className="max-h-full max-w-full object-contain rounded-xl" 
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                {images.length > 1 && (
+                  <div className="flex gap-4 justify-start py-4 flex-shrink-0 pl-6">
+                    <button
+                      className="w-12 h-12 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
+                      onClick={scrollPrev}
+                      aria-label="Previous image"
+                    >
+                      <ArrowLeft size={ARROW_SIZE} color="hsl(var(--naya-hm))" />
+                    </button>
+                    <button
+                      className="w-12 h-12 rounded-full flex items-center justify-center bg-naya-dg hover:bg-naya-lg transition-colors shadow"
+                      onClick={scrollNext}
+                      aria-label="Next image"
+                    >
+                      <ArrowLeft size={ARROW_SIZE} color="hsl(var(--naya-hm))" style={{ transform: 'rotate(180deg)' }} />
+                    </button>
+                    <div className="text-xs text-gray-500 flex items-center ml-4">
+                      {carouselIndex + 1} / {images.length}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column - Product Details */}
+          <div className="flex flex-col px-6 pt-8">
+            <h1 ref={productNameRef} className="text-3xl md:text-4xl font-asc-b text-naya-dg mb-4 text-left">{product.title}</h1>
+            <div className="text-2xl md:text-3xl font-asc-m text-naya-dg mb-6 text-left">
+              ${Math.floor(Number(product.variants?.edges[0]?.node.price.amount))}
+            </div>
+            <div className="mb-8 text-gray-700 font-pg-r text-xl leading-relaxed text-left">{product.description}</div>
+
+            {sizes && sizes.length > 0 && (
+              <div className="mb-6">
+                <div className="flex gap-4">
+                  {sortSizes(sizes).map((size) => {
+                    const displayLabel = getSizeDisplayLabel(size);
+                    const textSizeClass = getSizeTextClass(displayLabel);
+                    return (
+                      <button
+                        key={size}
+                        onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
+                        className={`w-12 h-12 rounded-full border-2 flex items-center justify-center ${textSizeClass} font-asc-m transition-colors
+                          ${selectedSize === size
+                            ? 'bg-naya-dg text-naya-hm border-naya-dg'
+                            : 'bg-naya-hm text-naya-dg border-naya-dg hover:bg-naya-dg hover:text-naya-hm'}`}
+                        style={{ outline: 'none' }}
+                        aria-label={`Select size ${displayLabel}`}
+                      >
+                        {displayLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+                {showSizeError && (
+                  <div className="text-red-600 text-sm font-pg-r mt-2">Please select a size to add to cart.</div>
+                )}
+              </div>
+            )}
+
+            <button
+              className="w-48 py-4 rounded-lg font-pg-b text-lg transition-colors bg-naya-dg text-naya-hm hover:bg-naya-lg mb-6"
+              onClick={handleAddToCart}
+            >
+              add to cart
+            </button>
+
+            {product.tags && product.tags.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xl font-asc-m text-naya-dg mb-3">product details</h3>
+                <div className="space-y-2 text-gray-700 font-pg-r text-xl leading-relaxed">
+                  {product.tags.map((tag, index) => (
+                    <div key={index} className="flex items-center">
+                      <img 
+                        src="https://cdn.shopify.com/s/files/1/0920/6415/3970/files/checkmark.png?v=1754424065" 
+                        alt="checkmark" 
+                        className="w-4 h-4 mr-3 flex-shrink-0"
+                      />
+                      <span>{tag}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Suggested Products Section */}
+            <div className="pb-16">
+              <h2 className="text-2xl font-asc-m text-naya-dg mb-6">you might also like</h2>
+              {loadingSuggested ? (
+                <div className="text-naya-dg">loading suggested products...</div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {suggestedProducts.map((suggestedProduct) => (
+                    <div key={suggestedProduct.id} className="border-2 border-naya-lg rounded-[15px] bg-white">
+                      <ProductCard
+                        name={suggestedProduct.name}
+                        price={suggestedProduct.price}
+                        image={suggestedProduct.image}
+                        hoverImage={suggestedProduct.hoverImage}
+                        id={suggestedProduct.id}
+                        currency={suggestedProduct.currency}
+                        shopifyId={suggestedProduct.shopifyId}
+                        options={suggestedProduct.options}
+                        variants={suggestedProduct.variants}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Footer */}
       <div ref={footerRef}>

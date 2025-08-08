@@ -1,13 +1,16 @@
 import CollectionCard from './CollectionCard';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { fetchShopifyStorefront } from '@/lib/shopify';
 import { useShopifyStyledContent } from '@/hooks/useShopifyStyledContent';
 
+// Feature flag to control visibility of the Outerwear collection
+const ENABLE_OUTERWEAR = false;
+
 // Map our collection names to Shopify collection handles
-const COLLECTION_MAPPING = {
+const COLLECTION_MAPPING: Record<string, string> = {
   'Light': 'accessories',
-  'Medium': 'tees', 
-  'Heavy': 'sweaters-sweatpants'
+  'Medium': 'tees',
+  // 'Heavy': 'sweaters-sweatpants' // Outerwear (disabled when ENABLE_OUTERWEAR is false)
 };
 
 const COLLECTIONS_QUERY = `
@@ -32,6 +35,7 @@ const HEADER_HEIGHT_PX = 64;
 const Collections = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   
   // Fetch dynamic header text from Shopify
   const { content: headerStyled, loading: headerLoading, error: headerError } = useShopifyStyledContent("collections_header");
@@ -59,8 +63,15 @@ const Collections = () => {
         const res = await fetchShopifyStorefront(COLLECTIONS_QUERY);
         const edges = res.data?.collections?.edges || [];
         
+        // Build list based on feature flag
+        const entries = [
+          ['Light', 'accessories'],
+          ['Medium', 'tees'],
+          ...(ENABLE_OUTERWEAR ? [['Heavy', 'sweaters-sweatpants'] as const] : []),
+        ];
+
         // Map our collection handles to Shopify data, using actual collection titles
-        const mappedCollections = Object.entries(COLLECTION_MAPPING).map(([displayName, handle]) => {
+        const mappedCollections = entries.map(([displayName, handle]) => {
           const shopifyCollection = edges.find((edge: any) => edge.node.handle === handle);
           const originalName = shopifyCollection?.node?.title || handle;
           // Convert to lowercase and replace commas with line breaks
@@ -91,12 +102,16 @@ const Collections = () => {
             image: '/CollectionsPlaceholder.jpg',
             handle: 'tees',
           },
-          {
-            name: 'sweaters &\nsweatpants',
-            subtitle: '',
-            image: '/CollectionsPlaceholder.jpg',
-            handle: 'sweaters-sweatpants',
-          },
+          ...(
+            ENABLE_OUTERWEAR
+              ? [{
+                  name: 'sweaters &\nsweatpants',
+                  subtitle: '',
+                  image: '/CollectionsPlaceholder.jpg',
+                  handle: 'sweaters-sweatpants',
+                }]
+              : []
+          ),
         ]);
       } finally {
         setLoading(false);
@@ -105,6 +120,30 @@ const Collections = () => {
     
     fetchCollections();
   }, []);
+
+  // Mobile-only: center the scroll position between the cards initially
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth >= 768) return; // desktop unchanged
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    // Wait a tick for layout, then also adjust after images load
+    const centerNow = () => {
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll > 0) {
+        el.scrollLeft = Math.round(maxScroll / 2);
+      }
+    };
+    const rafId = requestAnimationFrame(centerNow);
+    const timerId = window.setTimeout(centerNow, 300);
+    window.addEventListener('resize', centerNow, { passive: true });
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timerId);
+      window.removeEventListener('resize', centerNow);
+    };
+  }, [collections.length]);
 
   if (loading) {
     return (
@@ -144,8 +183,12 @@ const Collections = () => {
               {headerLoading ? "Loading..." : displayHeaderText}
             </h2>
           </div>
-          <div className="flex-1 flex items-center justify-center w-full py-12 pb-16 bg-naya-dg">
-            <div className="flex gap-4 md:gap-8 w-full justify-start overflow-x-auto overflow-y-visible px-4 scrollbar-hide md:justify-center md:overflow-x-visible md:px-0" style={{ scrollBehavior: 'smooth', touchAction: 'pan-x pan-y' }}>
+            <div className="flex-1 flex items-center justify-center w-full pt-6 pb-4 md:pt-12 md:pb-16 bg-naya-dg">
+            <div
+              ref={scrollContainerRef}
+              className="flex gap-4 md:gap-8 w-full justify-start md:justify-center overflow-x-auto md:overflow-x-visible overflow-y-visible px-4 md:px-0 scrollbar-hide overscroll-x-contain"
+              style={{ scrollBehavior: 'smooth', touchAction: 'pan-x pan-y' }}
+            >
               {collections.map((collection, index) => (
                 <div
                   className="min-w-[140px] max-w-[240px] md:min-w-[250px] md:max-w-[400px] flex-shrink-0 h-[45vh] md:h-[60vh] border-2 border-naya-lg p-0 rounded-[15px] overflow-hidden transition-transform duration-300 hover:scale-105 hover:z-20 relative"

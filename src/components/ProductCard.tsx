@@ -228,7 +228,7 @@ const ProductCard = ({ name, price, image, originalPrice, id, hoverImage, option
         {!showSizeSelection ? (
           <button
             onClick={handleAddToCart}
-            className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1/2 bg-naya-dg text-naya-hm py-2 rounded font-semibold hover:bg-naya-lg transition-all duration-200 opacity-0 group-hover:opacity-100 z-30"
+            className="hidden md:block absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1/2 bg-naya-dg text-naya-hm py-2 rounded font-semibold hover:bg-naya-lg transition-all duration-200 md:opacity-0 md:group-hover:opacity-100 z-30"
           >
             add to cart
           </button>

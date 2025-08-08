@@ -7,11 +7,19 @@ import { useNavigate } from 'react-router-dom';
 
 const HEADER_HEIGHT_PX = 64;
 
+// Feature flag for outerwear
+const ENABLE_OUTERWEAR = false;
+
 const shopLinks = [
   { label: 'shop all', href: '/shop-all' },
   { label: 'accessories, miscellaneous', href: '/collection/accessories' },
   { label: 'tees', href: '/collection/tees' },
-  { label: 'outerwear', href: '/collection/sweaters-sweatpants' },
+  // Outerwear link is conditionally included
+  ...(
+    ENABLE_OUTERWEAR
+      ? [{ label: 'outerwear', href: '/collection/sweaters-sweatpants' }]
+      : []
+  ),
 ];
 
 // Removed Info links and drawer per request
@@ -109,7 +117,7 @@ const Header = () => {
       <div className="fixed top-0 left-0 z-[80] flex items-center h-16 px-3 md:px-8 pointer-events-none">
         <nav className="flex items-center h-full gap-4 md:gap-8 pointer-events-auto">
           <button
-            className={`h-full flex items-center text-lg ${isShopDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${shopColor}`}
+            className={`h-full flex items-center text-lg px-2 md:px-0 ${isShopDrawerOpen ? 'font-asc-b' : 'font-asc-r'} transition-colors ${shopColor}`}
             style={{ outline: 'none', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.04em' }}
             onClick={openShopDrawer}
           >

@@ -12,7 +12,22 @@ const BrandStory = ({ text }: { text?: string }) => {
   // Fetch video URL from Shopify page content
   const { content: brandStoryVideoUrl } = useShopifyPageContent("brandstory_video");
   const cleanVideoUrl = brandStoryVideoUrl ? brandStoryVideoUrl.replace(/<[^>]*>/g, '').trim() : null;
-  const displayVideoUrl = cleanVideoUrl || "/60sBeirut.mp4";
+
+  // Normalize URL for production (avoid mixed content, missing scheme)
+  const normalizeUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    const trimmed = url.trim();
+    if (trimmed.startsWith('//')) return `https:${trimmed}`;
+    if (trimmed.startsWith('http://')) return `https://${trimmed.slice(7)}`;
+    if (trimmed.startsWith('https://')) return trimmed;
+    if (trimmed.startsWith('/')) return trimmed; // local asset
+    // If it's likely a domain/path without scheme, default to https
+    if (/^[^\s]+\.[^\s]+/.test(trimmed)) return `https://${trimmed}`;
+    return trimmed;
+  };
+
+  const normalizedVideoUrl = normalizeUrl(cleanVideoUrl);
+  const displayVideoUrl = normalizedVideoUrl || "/60sBeirut.mp4";
   
   // Use fetched styled content first, then prop, then default
   const displayText = brandStoryStyled?.text || text || DEFAULT_TEXT;
@@ -37,10 +52,10 @@ const BrandStory = ({ text }: { text?: string }) => {
 
   return (
     <section
-      className="relative flex items-center justify-center w-full bg-naya-hm py-0 sm:py-12 md:py-0 sm:min-h-auto sm:h-auto md:min-h-[90vh] md:h-[90vh]"
+      className="relative flex items-center justify-center w-full bg-naya-hm py-0 pt-8 md:pt-0 sm:py-12 md:py-0 sm:min-h-auto sm:h-auto md:min-h-[90vh] md:h-[90vh] overflow-x-hidden md:overflow-visible"
     >
       <div
-        className="relative flex items-center justify-center w-[95vw] max-w-[1800px] aspect-[2.57/1] max-h-[700px] min-h-[250px] rounded-lg overflow-hidden shadow-lg"
+        className="relative flex items-center justify-center w-[95vw] max-w-[95vw] md:max-w-[1800px] aspect-[2.57/1] max-h-[700px] min-h-[250px] rounded-lg overflow-hidden shadow-lg"
       >
         {/* Video background */}
         <video
@@ -50,6 +65,15 @@ const BrandStory = ({ text }: { text?: string }) => {
           loop
           muted
           playsInline
+          preload="metadata"
+          onError={(e) => {
+            // Fallback to local video if remote fails (e.g., mixed content, 403, CORS)
+            const video = e.currentTarget as HTMLVideoElement;
+            if (video.src !== window.location.origin + '/60sBeirut.mp4') {
+              video.src = '/60sBeirut.mp4';
+              video.play().catch(() => {});
+            }
+          }}
         />
         {/* Grey transparent overlay for dimming */}
         <div className="absolute inset-0 bg-gray-900/40 z-10" />

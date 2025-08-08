@@ -50,6 +50,17 @@ const Collection = () => {
   const [loading, setLoading] = useState(true);
   const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false);
 
+  // Mobile-only: ensure page starts at the top on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (window.innerWidth >= 768) return; // preserve desktop behavior
+    // Delay until after first paint to override any history restoration
+    const id = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    });
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   useEffect(() => {
     async function fetchCollection() {
       setLoading(true);
@@ -119,10 +130,10 @@ const Collection = () => {
       <div className="bg-naya-hm px-4 sticky top-0 z-30 shadow-lg" style={{ height: 64 }}>
         <div className="max-w-7xl mx-auto flex items-center h-full" />
         {/* Back button */}
-        <div className="absolute top-0 left-0 h-full flex items-center pl-8">
+        <div className="absolute top-0 left-0 h-full flex items-center pl-3 md:pl-8">
           <button
             onClick={() => navigate(-1)}
-            className="group flex items-center space-x-2 font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full"
+            className="group flex items-center space-x-1 font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full"
           >
             <ArrowLeft size={21} className="translate-y-[1px]" />
             <span>back</span>
@@ -150,7 +161,7 @@ const Collection = () => {
           </button>
         </div>
         {/* Cart (N) button */}
-        <div className="absolute top-0 right-0 h-full flex items-center pr-8">
+        <div className="absolute top-0 right-0 h-full flex items-center pr-3 md:pr-8">
           <button
             className="font-asc-r text-xl text-naya-dg hover:text-naya-lg transition-colors h-full flex items-center"
             onClick={() => setIsCartSidebarOpen(true)}
@@ -202,11 +213,11 @@ const Collection = () => {
       </div>
 
       {/* Products Grid */}
-      <div className="p-6">
+      <div className="px-4 md:px-6 py-6">
         {products.length > 0 ? (
           <div className="flex flex-wrap justify-center gap-6 max-w-7xl mx-auto">
             {products.map((product: any) => (
-              <div key={product.id} className="border-2 border-naya-lg rounded-[15px] bg-white w-80 h-[500px]">
+              <div key={product.id} className="border-2 border-naya-lg rounded-[15px] bg-white w-[82vw] max-w-72 md:w-80 h-[500px]">
                 <ProductCard
                   name={product.name}
                   price={product.price}

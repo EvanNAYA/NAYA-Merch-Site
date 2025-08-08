@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import ASIMobile from './ASIMobile';
 
 const LOGOS = [
   { src: '/As Seen In/ForbesLogo.png', alt: 'Forbes' },
@@ -18,6 +19,10 @@ const BORDER_WIDTH = '1px';
 const LOGO_GAP = '2.5rem';
 const PADDING_Y = '2px';
 const ANIMATION_DURATION = 12;
+// Mobile sizing and speed controls
+const MOBILE_LOGO_WIDTH_PX = 90;
+const MOBILE_GAP_PX = 12;
+const MOBILE_TARGET_SPEED_PX_PER_S = 110; // visual pace on mobile
 
 const ASI: React.FC = () => {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -52,8 +57,8 @@ const ASI: React.FC = () => {
   useEffect(() => {
     const updateAnimation = () => {
       if (!setWidth) return;
-      // Convert 1.2vw to pixels (1.2% of viewport width)
-      const marginInPixels = window.innerWidth * 0.012; // 1.2vw
+      // Desktop keyframes (existing)
+      const marginInPixels = window.innerWidth * 0.012;
       const totalDistance = setWidth + marginInPixels;
       const keyframes = `@keyframes asi-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${totalDistance}px); } }`;
       let styleSheet = document.getElementById('asi-scroll-keyframes');
@@ -63,6 +68,20 @@ const ASI: React.FC = () => {
         document.head.appendChild(styleSheet);
       }
       styleSheet.innerText = keyframes;
+
+      // Mobile keyframes + dynamic duration for readable pace
+      const itemsCount = LOGOS.length;
+      const mobileSetWidth = (MOBILE_LOGO_WIDTH_PX + MOBILE_GAP_PX) * itemsCount; // px
+      const mobileDistance = mobileSetWidth; // translate exactly one set
+      const mobileDuration = Math.max(8, Math.round(mobileDistance / MOBILE_TARGET_SPEED_PX_PER_S));
+      document.documentElement.style.setProperty('--asi-mobile-duration', `${mobileDuration}s`);
+      let mobileSheet = document.getElementById('asi-mobile-keyframes');
+      if (!mobileSheet) {
+        mobileSheet = document.createElement('style');
+        mobileSheet.id = 'asi-mobile-keyframes';
+        document.head.appendChild(mobileSheet);
+      }
+      mobileSheet.innerHTML = `@keyframes asi-mobile-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-${mobileDistance}px); } }`;
     };
 
     updateAnimation();
@@ -75,6 +94,10 @@ const ASI: React.FC = () => {
       const styleSheet = document.getElementById('asi-scroll-keyframes');
       if (styleSheet && styleSheet.parentNode) {
         styleSheet.parentNode.removeChild(styleSheet);
+      }
+      const mobileSheet = document.getElementById('asi-mobile-keyframes');
+      if (mobileSheet && mobileSheet.parentNode) {
+        mobileSheet.parentNode.removeChild(mobileSheet);
       }
     };
   }, [setWidth]);
@@ -104,86 +127,7 @@ const ASI: React.FC = () => {
     return 1.0; // Default
   };
 
-  if (isMobile) {
-    return (
-      <section
-        className="w-full flex flex-col bg-naya-hm pb-32"
-        style={{ minHeight: CAROUSEL_HEIGHT_MOBILE, height: CAROUSEL_HEIGHT_MOBILE, backgroundColor: 'hsl(var(--naya-hm))' }}
-        data-asi
-      >
-        <div className="px-4 pb-2 mb-8 pt-4">
-          <h2 className="text-4xl font-asc-m text-naya-dg mb-4 text-left">as seen in</h2>
-        </div>
-        <div
-          className="w-full flex items-center"
-          style={{
-            flex: 1,
-            minHeight: `18vh`,
-            height: '18vh',
-          }}
-        >
-          <div
-            className="simple-mobile-carousel relative mx-auto overflow-hidden"
-            style={{
-              width: '80vw',
-              height: '100%',
-              borderLeft: `${BORDER_WIDTH} solid #000`,
-              borderRight: `${BORDER_WIDTH} solid #000`,
-              borderTop: `${BORDER_WIDTH} solid #000`,
-              borderBottom: `${BORDER_WIDTH} solid #000`,
-              backgroundColor: 'hsl(var(--naya-hm))',
-              borderRadius: '15px',
-            }}
-          >
-            <div
-              className="simple-mobile-track"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                height: '100%',
-                animation: 'simple-mobile-scroll 15s linear infinite',
-              }}
-            >
-              {/* Double the logos for seamless loop */}
-              {[...LOGOS, ...LOGOS].map((logo, idx) => (
-                <div
-                  key={`simple-logo-${idx}`}
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{
-                    width: '20vw',
-                    height: '80%',
-                    marginRight: '1rem',
-                  }}
-                >
-                  <img
-                    src={logo.src}
-                    alt={logo.alt}
-                    style={{
-                      maxWidth: '100%',
-                      maxHeight: '100%',
-                      objectFit: 'contain',
-                      transform: `scale(${getMobileLogoMultiplier(logo.src)})`,
-                    }}
-                    draggable={false}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="h-7"></div>
-        <style>{`
-          @keyframes simple-mobile-scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .simple-mobile-track {
-            width: calc(14 * (20vw + 1rem)); /* 14 logos × (20vw width + 1rem gap) */
-          }
-        `}</style>
-      </section>
-    );
-  }
+  if (isMobile) return <ASIMobile />;
 
   return (
     <section

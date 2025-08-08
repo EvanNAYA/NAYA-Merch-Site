@@ -16,8 +16,11 @@ const Index = () => {
       <ProductGrid />
       <BrandStory />
       <Collections />
-      <ASI />
-      <div className="pb-6" style={{ height: '4rem', background: 'hsl(var(--naya-hm))' }} />
+      {/* On mobile, go directly to footer after collections; keep ASI and spacer only on desktop */}
+      <div className="hidden md:block">
+        <ASI />
+        <div className="pb-6" style={{ height: '4rem', background: 'hsl(var(--naya-hm))' }} />
+      </div>
       <Footer />
     </div>
   );

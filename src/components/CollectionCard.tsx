@@ -13,7 +13,12 @@ const CollectionCard = ({ name, subtitle, image, handle, shopifyId }: Collection
 
   const handleClick = () => {
     if (handle) {
+      // Navigate and ensure next page starts at top on mobile
       navigate(`/collection/${handle}`);
+      if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        // Schedule scroll reset after route change
+        setTimeout(() => window.scrollTo(0, 0), 0);
+      }
     }
   };
 
